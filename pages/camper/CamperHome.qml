@@ -16,18 +16,23 @@ Item {
 	signal pageRequested(int page)
 
 	readonly property bool dayMode: false
-	readonly property color background: "#070c10"
-	readonly property color panel: "#111a21"
-	readonly property color inner: "#0d151b"
-	readonly property color textColor: "#f3f7f9"
-	readonly property color muted: "#84939e"
-	readonly property color line: "#293842"
-	readonly property color blue: "#36c3fa"
-	readonly property color green: "#35d2a1"
-	readonly property color orange: "#f6a23c"
+	readonly property color background: visual.backgroundBottom
+	readonly property color panel: visual.panel
+	readonly property color inner: visual.inner
+	readonly property color textColor: visual.text
+	readonly property color muted: visual.muted
+	readonly property color line: visual.border
+	readonly property color blue: visual.blue
+	readonly property color green: visual.green
+	readonly property color orange: visual.orange
 
 	width: 800
 	height: 480
+
+	CamperStyle {
+		id: visual
+		dayMode: root.dayMode
+	}
 
 	function fmt(value, digits, suffix) {
 		if (value === null || value === undefined || value === "" || !isFinite(Number(value))) {
@@ -40,8 +45,8 @@ Item {
 		anchors.fill: parent
 		color: root.background
 		gradient: Gradient {
-			GradientStop { position: 0.0; color: "#081016" }
-			GradientStop { position: 1.0; color: "#05090c" }
+			GradientStop { position: 0.0; color: visual.backgroundTop }
+			GradientStop { position: 1.0; color: visual.backgroundBottom }
 		}
 	}
 
@@ -50,13 +55,13 @@ Item {
 		y: 0
 		width: 800
 		height: 58
-		color: "#091016"
+		color: visual.header
 		border.color: root.line
 
 		Image {
-			x: 8
+			x: 5
 			y: 4
-			width: 50
+			width: 56
 			height: 50
 			source: root.logoSource
 			fillMode: Image.PreserveAspectFit
@@ -86,7 +91,7 @@ Item {
 			height: 29
 			radius: 15
 			color: root.inner
-			border.color: root.adapter.connected ? root.green : "#ef6e76"
+			border.color: root.adapter.connected ? root.green : visual.red
 
 			Rectangle {
 				x: 10
@@ -94,7 +99,7 @@ Item {
 				width: 8
 				height: 8
 				radius: 4
-				color: root.adapter.connected ? root.green : "#ef6e76"
+				color: root.adapter.connected ? root.green : visual.red
 			}
 			Text {
 				x: 24
@@ -183,7 +188,7 @@ Item {
 					? "SYSTEM " + root.fmt(root.adapter.batteryVoltage, 1, " V")
 					: "VICTRON BATTERIE"
 			active: root.adapter.hasBatterySoc
-			accentColor: root.green
+			accentColor: root.blue
 		}
 		CamperMetricTile {
 			x: 207
@@ -196,7 +201,7 @@ Item {
 			value: root.fmt(root.adapter.solarPower, 0, " W")
 			detail: root.adapter.hasSolarPower ? "VICTRON SYSTEM" : "KEINE VICTRON DATEN"
 			active: root.adapter.hasSolarPower && root.adapter.solarPower > 0
-			accentColor: "#f4c94c"
+			accentColor: root.blue
 		}
 		CamperMetricTile {
 			x: 404
@@ -222,7 +227,7 @@ Item {
 			value: "–"
 			detail: "NOCH NICHT ANGEBUNDEN"
 			active: false
-			accentColor: root.orange
+			accentColor: root.blue
 		}
 
 		Rectangle {
@@ -383,7 +388,7 @@ Item {
 				height: 36
 				enabled: false
 				label: "230 V AN"
-				accentColor: "#ad8cf2"
+				accentColor: visual.purple
 			}
 		}
 

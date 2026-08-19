@@ -7,12 +7,17 @@ Rectangle {
 
 	property bool dayMode: false
 	property int currentPage: 0
-	property color lineColor: dayMode ? "#c8cdd2" : "#2b3946"
-	property color primaryText: dayMode ? "#20252a" : "#f4f8fb"
-	property color accentColor: dayMode ? "#0067b9" : "#45c9fa"
+	property color lineColor: visual.border
+	property color primaryText: visual.text
+	property color accentColor: visual.blue
 	signal pageRequested(int page)
 
-	color: dayMode ? "#f7f8f9" : "#0c141b"
+	CamperStyle {
+		id: visual
+		dayMode: root.dayMode
+	}
+
+	color: visual.header
 	border.color: lineColor
 
 	Repeater {
@@ -32,7 +37,7 @@ Rectangle {
 			y: 0
 			width: index === 2 ? 266 : 267
 			height: 58
-			color: selected ? (root.dayMode ? "#dceff8" : "#102d3d") : "transparent"
+			color: selected ? visual.selectedBlue : "transparent"
 			border.color: root.lineColor
 
 			Rectangle {

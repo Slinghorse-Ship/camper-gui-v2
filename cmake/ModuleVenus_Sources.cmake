@@ -32,6 +32,7 @@ set (VictronVenusOS_QML_MODULE_SOURCES
     components/camper/CamperLineIcon.qml
     components/camper/CamperMetricTile.qml
     components/camper/CamperNavBar.qml
+    components/camper/CamperStyle.qml
     components/camper/CamperTouchButton.qml
     components/camper/CamperViewport.qml
     components/CircularMultiGauge.qml
