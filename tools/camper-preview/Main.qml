@@ -40,6 +40,8 @@ Window {
 
         readonly property bool connected: true
         readonly property bool customConnected: true
+        readonly property bool customReadConnected: true
+        readonly property bool customCommandsAllowed: true
         readonly property real batterySoc: 82
         readonly property real batteryVoltage: 12.7
         readonly property real solarPower: 486
