@@ -6,6 +6,22 @@ This change remains pinned to the compatibility baseline in `PORT_BASELINE.md`:
 Venus OS `v3.80~39`, gui-v2 `1.3.14-r0`, Qt `6.8.3`, and GX Touch 50 at
 `800x480`.
 
+## Display-fit patch
+
+- V2 now owns the complete 800x480 canvas as a square, clipped gradient
+  rectangle. Its four output corners are the V2 background colors in both day
+  and night mode; no host background or outer rounded mask is visible.
+- The day/night Transit header symbols are the final RGBA assets shared with
+  Ford SYNC. They have transparent corners and the compact FORD block grille.
+- The 42x42 close target at the upper right emits the shell's existing
+  `closeRequested` signal. It does not quit gui-v2 and does not touch a backend
+  service. The signal travels from `CamperV2Header` through `CamperV2Shell` and
+  `CamperShell` to `MainView.showVictronUi()`, which hides only the Camper
+  overlay and exposes the preserved Victron UI underneath. The existing
+  `CAMPER` button calls `MainView.showCamperUi()` to return.
+- The System page remains available in the bottom navigation. V1 files and V1
+  behavior are unchanged.
+
 ## Local design selection
 
 `components/camper/CamperDesignSettings.qml` owns the integer setting
@@ -88,13 +104,16 @@ $python = 'C:\Users\wehla\.cache\codex-runtimes\codex-primary-runtime\dependenci
 & $python tools\camper-preview\smoke_test.py
 ```
 
-The render harness accepts output path, page, design version, and Energy pane:
+The render harness accepts output path, page, design version, Energy pane, and
+optional day mode (`0` night, `1` day):
 
 ```powershell
 & $python tools\camper-preview\render.py outputs\v2-home.png 0 2 0
 & $python tools\camper-preview\render.py outputs\v2-energy-power.png 3 2 0
 & $python tools\camper-preview\render.py outputs\v2-energy-sources.png 3 2 1
 & $python tools\camper-preview\render.py outputs\v2-energy-solar.png 3 2 2
+& $python tools\camper-preview\render.py outputs\v2-home-photo-fix-night.png 0 2 0 0
+& $python tools\camper-preview\render.py outputs\v2-home-photo-fix-day.png 0 2 0 1
 ```
 
 Official packaging remains:
@@ -111,20 +130,22 @@ Neither command deploys to a Cerbo unless a host argument is explicitly added.
 Both official scripts completed with exit code 0 on 2026-08-19 from the same
 source tree.
 
-- GX staging directory: `build-gx_files_to_copy/` (938 files)
+- GX staging directory: `build-gx_files_to_copy/` (938 files, `13742240`
+  bytes)
 - GX binary: `build-gx_files_to_copy/venus-gui-v2`
-- GX binary size: `10236332` bytes
+- GX binary size: `10248620` bytes
 - GX binary SHA-256:
-  `418C2D7D26D531A9AE870CEF2F3B75655365EDBE9B981ADEAD2328919C7FF643`
-- WASM staging directory: `build-wasm_files_to_copy/wasm/` (21 files)
+  `5F92ED798D823BDE6498B2D6A23FF1190E0B07C304B4A0DEE1139F94CF689A2C`
+- WASM staging directory: `build-wasm_files_to_copy/wasm/` (21 files,
+  `17461601` bytes)
 - WASM JavaScript SHA-256:
-  `E9F7737F8A43016D621378E8335EB8B5804EA1B1DE7509B5E57356431956341B`
-- Staged `venus-gui-v2.wasm.gz` size: `16973413` bytes
+  `D25B0C8720C70B85FD51A3576CE036BE09425100C7019487975B5249B1D3E788`
+- Staged `venus-gui-v2.wasm.gz` size: `16983706` bytes
 - Staged `venus-gui-v2.wasm.gz` SHA-256:
-  `02AEAF22588F0BBE98E5DA391668A95F33EB46500984259F0987541906BE4DCA`
-- Uncompressed WASM size recorded by the official build: `37307523` bytes
+  `1034AFD3D10F10E11A01DC82D2EDCAE1CA9BC0882A424B345F1DB29EA42B3EC1`
+- Uncompressed WASM size recorded by the official build: `37317445` bytes
 - Uncompressed WASM SHA-256 recorded by the official build:
-  `2647D985E36BF3879607B4C1E96B98609E238DF47470E9D16024970D427529EC`
+  `42AE88E350BCD9FDEA5385CD1F506371030D060AA249499A9974CC78B931FE77`
 
 The build stages are intentionally ignored by Git. They are release/deployment
 inputs, not source files.
@@ -133,7 +154,7 @@ Prototype asset checksums:
 
 | Asset | SHA-256 |
 | --- | --- |
-| `camper_transit_line_dark.png` | `4AA46E7FC2153C29FEF645C7E15F3798C2EE057362808EC1B0E190215B3973EF` |
-| `camper_transit_line_light.png` | `0ACAB7DFC369153214694C7D808975C3B334FB8599190188229D20943178AD9D` |
+| `camper_transit_line_dark.png` | `F54F528AF869C6F3CC2DEC1A7B90AE730B6DF1D431F67AEB55328BA1FD6AA605` |
+| `camper_transit_line_light.png` | `2B67063319CDB66767CCA2229996B9E6161A849EDDD6B0941FB5F984CF1A594F` |
 | `camper_v2_vehicle_left.png` | `FEA43248C03588CB57D65DA00788F429022B819C8E440731EA02136B33123DFE` |
 | `camper_v2_vehicle_right.png` | `3439E784E263C051C5B229A37BE863D6EF3295887315F76969A48F516337AACA` |

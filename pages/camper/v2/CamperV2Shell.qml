@@ -1,7 +1,7 @@
 import QtQuick
 import "../../../components/camper/v2"
 
-Item {
+Rectangle {
     id: root
 
     required property var adapter
@@ -19,23 +19,22 @@ Item {
 
     readonly property string pageTitle: ["Home", "Licht", "Klima", "Energie", "Wasser", "System"][Math.max(0, Math.min(5, currentPage))]
 
+    radius: 0
+    clip: true
+    gradient: Gradient {
+        GradientStop {
+            position: 0
+            color: style.backgroundTop
+        }
+        GradientStop {
+            position: 1
+            color: style.backgroundBottom
+        }
+    }
+
     CamperV2Style {
         id: style
         dayMode: root.dayMode
-    }
-
-    Rectangle {
-        anchors.fill: parent
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: style.backgroundTop
-            }
-            GradientStop {
-                position: 1
-                color: style.backgroundBottom
-            }
-        }
     }
 
     CamperV2Header {
@@ -48,7 +47,7 @@ Item {
         darkLogoSource: root.darkLogoSource
         lightLogoSource: root.lightLogoSource
         onThemeRequested: root.dayMode = !root.dayMode
-        onSystemRequested: root.currentPage = 5
+        onCloseRequested: root.closeRequested()
     }
 
     Item {

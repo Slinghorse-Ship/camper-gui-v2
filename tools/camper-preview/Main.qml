@@ -24,6 +24,7 @@ Window {
     property bool previewHighBeamOutputOnline: true
     property int previewDesignVersion: 2
     property int previewV2EnergyPane: 0
+    property bool previewV2DayMode: false
 
     onPreviewDesignVersionChanged: CamperDesignSettings.setDesignVersion(previewDesignVersion)
     Component.onCompleted: CamperDesignSettings.setDesignVersion(previewDesignVersion)
@@ -427,6 +428,7 @@ Window {
         visible: window.previewDesignVersion === 2 && window.currentCamperPage !== 12
         currentPage: Math.max(0, Math.min(5, window.currentCamperPage))
         energyPane: window.previewV2EnergyPane
+        dayMode: window.previewV2DayMode
         adapter: previewAdapter
         darkLogoSource: "../../../images/camper_transit_line_dark.png"
         lightLogoSource: "../../../images/camper_transit_line_light.png"

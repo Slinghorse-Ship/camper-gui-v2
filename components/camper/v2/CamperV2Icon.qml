@@ -244,6 +244,9 @@ Canvas {
             ctx.bezierCurveTo(w * .26, h * .69, w * .25, h * .43, w * .39, h * .28);
             ctx.bezierCurveTo(w * .40, h * .47, w * .55, h * .47, x, h * .10);
             ctx.stroke();
+        } else if (kind === "close") {
+            line(ctx, [[w * .22, h * .22], [w * .78, h * .78]]);
+            line(ctx, [[w * .78, h * .22], [w * .22, h * .78]]);
         } else if (kind === "back") {
             line(ctx, [[w * .70, h * .20], [w * .35, y], [w * .70, h * .80]]);
             line(ctx, [[w * .35, y], [w * .90, y]]);

@@ -9,7 +9,7 @@ Item {
     property url darkLogoSource: "qrc:/images/camper_transit_line_dark.png"
     property url lightLogoSource: "qrc:/images/camper_transit_line_light.png"
     signal themeRequested
-    signal systemRequested
+    signal closeRequested
 
     height: 50
 
@@ -116,26 +116,28 @@ Item {
     }
 
     Rectangle {
-        x: 732
-        y: 6
-        width: 38
-        height: 38
+        x: 748
+        y: 4
+        width: 42
+        height: 42
         radius: 12
-        color: systemArea.pressed ? style.pressed : style.inner
+        color: closeArea.pressed ? (root.dayMode ? "#f4d8da" : "#49242b") : style.inner
+        border.color: root.dayMode ? "#d75b64" : "#e47780"
+        border.width: 1
 
         CamperV2Icon {
             anchors.centerIn: parent
             width: 21
             height: 21
-            kind: "sliders"
-            lineColor: style.text
-            strokeWidth: 1.8
+            kind: "close"
+            lineColor: style.red
+            strokeWidth: 2
         }
 
         MouseArea {
-            id: systemArea
+            id: closeArea
             anchors.fill: parent
-            onClicked: root.systemRequested()
+            onClicked: root.closeRequested()
         }
     }
 }
