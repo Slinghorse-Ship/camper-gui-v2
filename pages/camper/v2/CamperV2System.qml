@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import "../../../components/camper"
 import "../../../components/camper/v2"
 
 Item {
@@ -11,16 +10,10 @@ Item {
     property bool dayMode: false
     signal openVictronSettings
     signal closeRequested
-    signal designSelected(int version)
 
     CamperV2Style {
         id: style
         dayMode: root.dayMode
-    }
-
-    function selectDesign(version) {
-        CamperDesignSettings.setDesignVersion(version);
-        designSelected(version);
     }
 
     Repeater {
@@ -76,6 +69,11 @@ Item {
                     label: "Node-RED",
                     connected: root.adapter.customReadConnected === true,
                     icon: "system"
+                },
+                {
+                    label: "DWD-Wetter",
+                    connected: root.adapter.weatherConnected === true,
+                    icon: "climate"
                 }
             ]
             delegate: Rectangle {
@@ -118,88 +116,82 @@ Item {
         }
     }
 
-    Text {
-        x: 246
-        y: 55
-        text: "Design"
-        color: style.muted
-        font.pixelSize: 9
-    }
-
-    Row {
+    Rectangle {
         x: 242
-        y: 76
-        spacing: 7
+        y: 55
+        width: 256
+        height: 102
+        radius: 14
+        color: style.selectedBlue
+        border.color: style.blue
 
-        Repeater {
-            model: [
-                {
-                    version: 1,
-                    label: "V1"
-                },
-                {
-                    version: 2,
-                    label: "V2"
-                }
-            ]
-            delegate: Rectangle {
-                required property var modelData
-                readonly property bool selected: CamperDesignSettings.designVersion === modelData.version
-                width: 124
-                height: 78
-                radius: 14
-                color: selected ? style.selectedBlue : style.inner
-                border.color: selected ? style.blue : style.border
-                border.width: selected ? 2 : 1
-
-                Text {
-                    x: 13
-                    y: 10
-                    text: parent.modelData.label
-                    color: parent.selected ? style.blue : style.text
-                    font.pixelSize: 22
-                    font.bold: true
-                }
-                CamperV2Icon {
-                    x: 82
-                    y: 23
-                    width: 28
-                    height: 28
-                    kind: parent.selected ? "check" : "system"
-                    lineColor: parent.selected ? style.blue : style.muted
-                    strokeWidth: 1.8
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: root.selectDesign(parent.modelData.version)
-                }
-            }
+        CamperV2Icon {
+            x: 15
+            y: 18
+            width: 38
+            height: 38
+            kind: "home"
+            lineColor: style.blue
+            strokeWidth: 1.8
         }
-    }
-
-    Text {
-        x: 246
-        y: 169
-        width: 248
-        text: "Die Auswahl wird lokal auf diesem Gerät gespeichert."
-        wrapMode: Text.WordWrap
-        color: style.muted
-        font.pixelSize: 9
+        Text {
+            x: 66
+            y: 19
+            text: "Transit Horizon"
+            color: style.text
+            font.pixelSize: 14
+            font.weight: Font.DemiBold
+        }
+        Text {
+            x: 66
+            y: 44
+            text: "V2 · feste Oberfläche"
+            color: style.blue
+            font.pixelSize: 10
+        }
+        Text {
+            x: 15
+            y: 73
+            width: 226
+            text: "Optimiert für GX Touch 50 und Remote Console"
+            color: style.muted
+            font.pixelSize: 9
+        }
     }
 
     Rectangle {
         x: 242
-        y: 223
+        y: 168
         width: 256
-        height: 62
+        height: 117
         radius: 13
         color: style.inner
+        border.color: style.border
+
         Text {
-            anchors.centerIn: parent
-            text: root.dayMode ? "Helle Darstellung" : "Dunkle Darstellung"
+            x: 14
+            y: 13
+            text: "Seitliche Panels"
             color: style.text
-            font.pixelSize: 10
+            font.pixelSize: 11
             font.weight: Font.DemiBold
+        }
+        Text {
+            x: 14
+            y: 40
+            width: 228
+            text: "Links  Favoriten\nRechts  DWD-Wetter"
+            color: style.muted
+            font.pixelSize: 10
+            lineHeight: 1.45
+        }
+        Text {
+            x: 14
+            y: 91
+            width: 228
+            text: "Vom Bildschirmrand nach innen wischen"
+            color: style.blue
+            font.pixelSize: 8
         }
     }
 

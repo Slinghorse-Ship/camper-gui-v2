@@ -10,29 +10,10 @@ Page {
 
     GradientListView {
         model: VisibleItemModel {
-            ListRadioButtonGroup {
-                text: "Design"
-                caption: "Lokale Darstellung auf diesem GX Touch oder Browser"
-                writeAccessLevel: VenusOS.User_AccessType_User
-                optionModel: [
-                    {
-                        display: "V1 · Klassisch",
-                        value: CamperDesignSettings.version1
-                    },
-                    {
-                        display: "V2 · Transit Horizon",
-                        value: CamperDesignSettings.version2
-                    }
-                ]
-                currentIndex: CamperDesignSettings.designVersion === CamperDesignSettings.version2 ? 1 : 0
-                updateDataOnClick: false
-                onOptionClicked: index => CamperDesignSettings.setDesignVersion(optionModel[index].value)
-            }
-
             ListText {
-                text: "Aktiv"
-                secondaryText: CamperDesignSettings.designVersion === CamperDesignSettings.version2 ? "V2 · Transit Horizon" : "V1 · Klassisch"
-                caption: "Wird sofort angewendet und lokal dauerhaft gespeichert."
+                text: "Oberfläche"
+                secondaryText: "V2 · Transit Horizon"
+                caption: "Die Camper-Oberfläche dieses Builds verwendet ausschließlich V2."
             }
 
             ListButton {
@@ -43,9 +24,9 @@ Page {
             }
 
             ListText {
-                text: "Hinweis"
-                secondaryText: "Gerätelokal"
-                caption: "Die Auswahl wird nicht automatisch zwischen Cerbo, Ford SYNC und Node-RED synchronisiert."
+                text: "Seitliche Panels"
+                secondaryText: "Links Favoriten · rechts Wetter"
+                caption: "Vom unsichtbaren Bildschirmrand zur Mitte wischen."
             }
         }
     }

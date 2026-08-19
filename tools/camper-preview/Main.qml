@@ -1,7 +1,5 @@
 import QtQuick
 import QtQuick.Window
-import "../../components/camper"
-import "../../pages/camper"
 import "../../pages/camper/v2"
 
 Window {
@@ -22,18 +20,19 @@ Window {
     property bool previewHighBeamVehicleOn: false
     property bool previewHighBeamManualOn: false
     property bool previewHighBeamOutputOnline: true
-    property int previewDesignVersion: 2
     property int previewV2EnergyPane: 0
     property bool previewV2DayMode: false
+    property int previewPanel: 0
+    property bool previewCustomCommandsAllowed: true
+    readonly property int previewActivePanel: v2Shell.activePanel
 
-    onPreviewDesignVersionChanged: CamperDesignSettings.setDesignVersion(previewDesignVersion)
-    Component.onCompleted: CamperDesignSettings.setDesignVersion(previewDesignVersion)
+    onPreviewPanelChanged: v2Shell.activePanel = previewPanel
 
     width: 800
     height: 480
     visible: true
     color: "#05090c"
-    title: "CamperControl gui-v2 Phase 2 preview"
+    title: "CamperControl gui-v2 V2 preview"
 
     QtObject {
         id: previewAdapter
@@ -41,7 +40,7 @@ Window {
         readonly property bool connected: true
         readonly property bool customConnected: true
         readonly property bool customReadConnected: true
-        readonly property bool customCommandsAllowed: true
+        readonly property bool customCommandsAllowed: window.previewCustomCommandsAllowed
         readonly property real batterySoc: 82
         readonly property real batteryVoltage: 12.7
         readonly property real solarPower: 486
@@ -330,6 +329,53 @@ Window {
                 }
             })
 
+        readonly property bool weatherConnected: true
+        readonly property string weatherErrorText: ""
+        property var weatherData: makeWeatherData()
+
+        function makeWeatherData() {
+            const hourly = [];
+            const base = new Date();
+            base.setMinutes(0, 0, 0);
+            for (let hour = 0; hour < 24; ++hour) {
+                hourly.push({
+                    t: new Date(base.getTime() + hour * 3600000).toISOString(),
+                    tempC: 16.5 + Math.sin((hour - 4) / 5) * 5.5,
+                    precipProbabilityPct: hour >= 7 && hour <= 12 ? 65 - Math.abs(9 - hour) * 11 : Math.max(4, 21 - hour),
+                    precipMm: hour >= 8 && hour <= 10 ? .8 : 0,
+                    ww: hour >= 8 && hour <= 10 ? 61 : (hour < 6 || hour > 19 ? 2 : 1),
+                    icon: hour >= 8 && hour <= 10 ? "rain" : "cloudy",
+                    condition: hour >= 8 && hour <= 10 ? "Leichter Regen" : "Bewölkt",
+                    windKmh: 12 + hour % 5
+                });
+            }
+            const daily = [];
+            for (let day = 0; day < 6; ++day) {
+                daily.push({
+                    date: new Date(base.getTime() + day * 86400000).toISOString().slice(0, 10),
+                    minC: 10 + day,
+                    maxC: 21 + (day % 3),
+                    precipMm: day === 2 ? 4.2 : .4 * day,
+                    maxHourlyPrecipProbabilityPct: day === 2 ? 78 : 12 + day * 7,
+                    ww: day === 2 ? 61 : (day === 4 ? 3 : 1),
+                    icon: day === 2 ? "rain" : "cloudy"
+                });
+            }
+            return {
+                fetchedAtUtc: new Date().toISOString(),
+                stale: false,
+                station: {
+                    name: "Berlin-Tempelhof"
+                },
+                sun: {
+                    sunriseUtc: new Date(base.getTime() + 6 * 3600000).toISOString(),
+                    sunsetUtc: new Date(base.getTime() + 20 * 3600000).toISOString()
+                },
+                hourly: hourly,
+                daily: daily
+            };
+        }
+
         function command(target, action, value, extra) {
             window.commandCount += 1;
             window.lastCommandTarget = target;
@@ -345,89 +391,9 @@ Window {
         }
     }
 
-    CamperHome {
-        anchors.fill: parent
-        visible: window.previewDesignVersion === 1 && window.currentCamperPage === 0
-        adapter: previewAdapter
-        logoSource: "../../images/camper_logo.png"
-        v2LogoSource: "../../images/camper_transit_line_dark.png"
-        onOpenVictronSettings: window.settingsClickCount += 1
-        onCloseRequested: window.closeClickCount += 1
-        onPageRequested: page => {
-            window.lastRequestedPage = page;
-            window.currentCamperPage = page;
-        }
-        onEditQuickAccessRequested: window.currentCamperPage = 12
-    }
-
-    CamperLights {
-        anchors.fill: parent
-        visible: window.previewDesignVersion === 1 && window.currentCamperPage === 1
-        adapter: previewAdapter
-        leftVehicleSource: "../../images/camper_vehicle_left.png"
-        rightVehicleSource: "../../images/camper_vehicle_right.png"
-        v2LogoSource: "../../images/camper_transit_line_dark.png"
-        onPageRequested: page => {
-            window.lastRequestedPage = page;
-            window.currentCamperPage = page;
-        }
-    }
-
-    CamperPower {
-        anchors.fill: parent
-        visible: window.previewDesignVersion === 1 && window.currentCamperPage === 5
-        adapter: previewAdapter
-        v2LogoSource: "../../images/camper_transit_line_dark.png"
-        onPageRequested: page => {
-            window.lastRequestedPage = page;
-            window.currentCamperPage = page;
-        }
-    }
-
-    CamperDetails {
-        anchors.fill: parent
-        visible: window.previewDesignVersion === 1 && window.currentCamperPage >= 6 && window.currentCamperPage <= 11
-        adapter: previewAdapter
-        detailPage: window.currentCamperPage
-        v2LogoSource: "../../images/camper_transit_line_dark.png"
-        onBackRequested: window.currentCamperPage = 0
-        onPageRequested: page => window.currentCamperPage = page
-    }
-
-    CamperQuickAccess {
-        anchors.fill: parent
-        visible: window.currentCamperPage === 12
-        adapter: previewAdapter
-        logoSource: "../../images/camper_logo.png"
-        v2LogoSource: "../../images/camper_transit_line_dark.png"
-        onBackRequested: window.currentCamperPage = 0
-        onPageRequested: page => {
-            window.lastRequestedPage = page;
-            if (page === 0)
-                window.currentCamperPage = 0;
-        }
-    }
-
-    CamperSystem {
-        anchors.fill: parent
-        visible: window.previewDesignVersion === 1 && window.currentCamperPage === 13
-        adapter: previewAdapter
-        v2LogoSource: "../../images/camper_transit_line_dark.png"
-        onOpenVictronSettings: window.settingsClickCount += 1
-        onCloseRequested: window.closeClickCount += 1
-        onPageRequested: page => {
-            window.lastRequestedPage = page;
-            window.currentCamperPage = page;
-        }
-        onDesignSelected: version => {
-            window.previewDesignVersion = version;
-            window.currentCamperPage = 0;
-        }
-    }
-
     CamperV2Shell {
+        id: v2Shell
         anchors.fill: parent
-        visible: window.previewDesignVersion === 2 && window.currentCamperPage !== 12
         currentPage: Math.max(0, Math.min(5, window.currentCamperPage))
         energyPane: window.previewV2EnergyPane
         dayMode: window.previewV2DayMode
@@ -437,15 +403,10 @@ Window {
         leftVehicleSource: "../../../images/camper_v2_vehicle_left.png"
         rightVehicleSource: "../../../images/camper_v2_vehicle_right.png"
         onCurrentPageChanged: {
-            if (window.previewDesignVersion === 2 && window.currentCamperPage <= 5)
+            if (window.currentCamperPage <= 5)
                 window.currentCamperPage = currentPage;
         }
         onOpenVictronSettings: window.settingsClickCount += 1
         onCloseRequested: window.closeClickCount += 1
-        onDesignSelected: version => {
-            window.previewDesignVersion = version;
-            window.currentCamperPage = 0;
-        }
-        onEditQuickAccessRequested: window.currentCamperPage = 12
     }
 }

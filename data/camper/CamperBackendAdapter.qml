@@ -15,6 +15,9 @@ Item {
     readonly property bool customConnected: customCommandsAllowed
     readonly property var stateData: custom.stateData
     readonly property string errorText: custom.errorText
+    readonly property var weatherData: weather.weatherData
+    readonly property bool weatherConnected: weather.connected
+    readonly property string weatherErrorText: weather.errorText
 
     readonly property real batterySoc: nativeData.batterySoc
     readonly property real batteryVoltage: nativeData.batteryVoltage
@@ -41,5 +44,9 @@ Item {
 
     CamperNodeRedAdapter {
         id: custom
+    }
+
+    CamperWeatherAdapter {
+        id: weather
     }
 }

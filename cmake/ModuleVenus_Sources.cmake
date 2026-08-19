@@ -1,6 +1,5 @@
 set (VictronVenusOS_QML_MODULE_SINGLETON_SOURCES # All qml singletons have to be added here
     components/CommonWords.qml
-    components/camper/CamperDesignSettings.qml
     components/FirmwareVersion.qml
     Global.qml
 )
@@ -30,15 +29,6 @@ set (VictronVenusOS_QML_MODULE_SOURCES
     components/BriefCenterDisplay.qml
     components/CaptionLabel.qml
     components/CardViewLoader.qml
-    components/camper/CamperLineIcon.qml
-    components/camper/CamperDimmerOverlay.qml
-    components/camper/CamperMetricTile.qml
-    components/camper/CamperNavBar.qml
-    components/camper/CamperPageHeader.qml
-    components/camper/CamperStyle.qml
-    components/camper/CamperTouchButton.qml
-    components/camper/CamperVehicleLightCard.qml
-    components/camper/CamperVehicleLightOverlay.qml
     components/camper/CamperViewport.qml
     components/camper/v2/CamperV2Card.qml
     components/camper/v2/CamperV2Header.qml
@@ -47,6 +37,8 @@ set (VictronVenusOS_QML_MODULE_SOURCES
     components/camper/v2/CamperV2Range.qml
     components/camper/v2/CamperV2Style.qml
     components/camper/v2/CamperV2VehicleLightOverlay.qml
+    components/camper/v2/CamperV2WeatherChart.qml
+    components/camper/v2/CamperV2WeatherIcon.qml
     components/CircularMultiGauge.qml
     components/CircularSingleGauge.qml
     components/CheapBarGauge.qml
@@ -342,6 +334,7 @@ set (VictronVenusOS_QML_MODULE_SOURCES
     data/camper/CamperNodeRedHttpAdapter.qml
     data/camper/CamperNodeRedMqttAdapter.qml
     data/camper/CamperVictronAdapter.qml
+    data/camper/CamperWeatherAdapter.qml
     data/DcInputs.qml
     data/EnvironmentInputs.qml
     data/Ess.qml
@@ -393,26 +386,17 @@ set (VictronVenusOS_QML_MODULE_SOURCES
     pages/LevelsPage.qml
     pages/LevelsTab.qml
     pages/MainView.qml
-    pages/camper/CamperBatteryDetails.qml
-    pages/camper/CamperDetails.qml
-    pages/camper/CamperEnergySolarDetails.qml
-    pages/camper/CamperHeaterDetails.qml
-    pages/camper/CamperHome.qml
-    pages/camper/CamperLights.qml
-    pages/camper/CamperMaxxFanDetails.qml
-    pages/camper/CamperPower.qml
-    pages/camper/CamperQuickAccess.qml
     pages/camper/CamperShell.qml
-    pages/camper/CamperSystem.qml
-    pages/camper/CamperTemperatureDetails.qml
-    pages/camper/CamperWaterDetails.qml
     pages/camper/v2/CamperV2Climate.qml
     pages/camper/v2/CamperV2Energy.qml
     pages/camper/v2/CamperV2Home.qml
     pages/camper/v2/CamperV2Lights.qml
+    pages/camper/v2/CamperV2PanelHost.qml
+    pages/camper/v2/CamperV2QuickPanel.qml
     pages/camper/v2/CamperV2Shell.qml
     pages/camper/v2/CamperV2System.qml
     pages/camper/v2/CamperV2Water.qml
+    pages/camper/v2/CamperV2WeatherPanel.qml
     pages/NotificationLayer.qml
     pages/NotificationsPage.qml
     pages/OverviewPage.qml

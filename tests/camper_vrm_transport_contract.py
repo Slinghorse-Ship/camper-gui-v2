@@ -9,6 +9,7 @@ ROOT = Path(__file__).parents[1]
 MQTT = ROOT / "data" / "camper" / "CamperNodeRedMqttAdapter.qml"
 FACADE = ROOT / "data" / "camper" / "CamperNodeRedAdapter.qml"
 BACKEND = ROOT / "data" / "camper" / "CamperBackendAdapter.qml"
+WEATHER = ROOT / "data" / "camper" / "CamperWeatherAdapter.qml"
 
 
 class CamperVrmTransportContractTest(unittest.TestCase):
@@ -25,6 +26,14 @@ class CamperVrmTransportContractTest(unittest.TestCase):
         self.assertIn('Qt.platform.os === "wasm" ? mqttTransport : httpTransport', source)
         self.assertIn("CamperNodeRedHttpAdapter", source)
         self.assertIn("CamperNodeRedMqttAdapter", source)
+
+    def test_weather_is_a_separate_read_only_vequickitem_for_gx_and_wasm(self):
+        source = WEATHER.read_text(encoding="utf-8")
+        self.assertIn('serviceUidFromName("com.victronenergy.campercontrol", 0)', source)
+        self.assertIn('"/State/Weather"', source)
+        self.assertIn("VeQuickItem", source)
+        self.assertNotIn("XMLHttpRequest", source)
+        self.assertNotIn("setValue", source)
 
     def test_monitor_only_separates_read_status_from_control_capability(self):
         source = BACKEND.read_text(encoding="utf-8")

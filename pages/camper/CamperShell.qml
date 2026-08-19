@@ -10,8 +10,6 @@ FocusScope {
 
     signal openVictronSettings
     signal closeRequested
-    property int currentPage: 0
-    readonly property bool designV2: CamperDesignSettings.designVersion === CamperDesignSettings.version2
 
     CamperBackendAdapter {
         id: backend
@@ -44,82 +42,12 @@ FocusScope {
     CamperViewport {
         anchors.fill: parent
 
-        CamperHome {
-            width: 800
-            height: 480
-            visible: !root.designV2 && root.currentPage === 0
-            adapter: backend
-            onOpenVictronSettings: root.openVictronSettings()
-            onCloseRequested: root.closeRequested()
-            onEditQuickAccessRequested: root.currentPage = 12
-            onPageRequested: page => {
-                root.currentPage = page;
-            }
-        }
-
-        CamperLights {
-            width: 800
-            height: 480
-            visible: !root.designV2 && root.currentPage === 1
-            adapter: backend
-            onOpenVictronSettings: root.openVictronSettings()
-            onCloseRequested: root.closeRequested()
-            onPageRequested: page => root.currentPage = page
-        }
-
-        CamperPower {
-            width: 800
-            height: 480
-            visible: !root.designV2 && root.currentPage === 5
-            adapter: backend
-            onOpenVictronSettings: root.openVictronSettings()
-            onCloseRequested: root.closeRequested()
-            onPageRequested: page => root.currentPage = page
-        }
-
-        CamperDetails {
-            width: 800
-            height: 480
-            visible: !root.designV2 && root.currentPage >= 6 && root.currentPage <= 11
-            adapter: backend
-            detailPage: root.currentPage
-            onBackRequested: root.currentPage = 0
-            onOpenVictronSettings: root.openVictronSettings()
-            onCloseRequested: root.closeRequested()
-            onPageRequested: page => root.currentPage = page
-        }
-
-        CamperQuickAccess {
-            width: 800
-            height: 480
-            visible: root.currentPage === 12
-            adapter: backend
-            onBackRequested: root.currentPage = 0
-            onPageRequested: page => {
-                root.currentPage = page;
-            }
-        }
-
-        CamperSystem {
-            width: 800
-            height: 480
-            visible: !root.designV2 && root.currentPage === 13
-            adapter: backend
-            onOpenVictronSettings: root.openVictronSettings()
-            onCloseRequested: root.closeRequested()
-            onPageRequested: page => root.currentPage = page
-            onDesignSelected: version => root.currentPage = 0
-        }
-
         CamperV2Shell {
             width: 800
             height: 480
-            visible: root.designV2 && root.currentPage !== 12
             adapter: backend
             onOpenVictronSettings: root.openVictronSettings()
             onCloseRequested: root.closeRequested()
-            onDesignSelected: version => root.currentPage = 0
-            onEditQuickAccessRequested: root.currentPage = 12
         }
     }
 }

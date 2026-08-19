@@ -7,6 +7,7 @@ Rectangle {
     required property var adapter
     property int currentPage: 0
     property alias energyPane: energyView.energyPane
+    property alias activePanel: panelHost.activePanel
     property bool dayMode: false
     property url darkLogoSource: "qrc:/images/camper_transit_line_dark.png"
     property url lightLogoSource: "qrc:/images/camper_transit_line_light.png"
@@ -14,8 +15,6 @@ Rectangle {
     property url rightVehicleSource: "qrc:/images/camper_v2_vehicle_right.png"
     signal openVictronSettings
     signal closeRequested
-    signal designSelected(int version)
-    signal editQuickAccessRequested
 
     readonly property string pageTitle: ["Home", "Licht", "Klima", "Energie", "Wasser", "System"][Math.max(0, Math.min(5, currentPage))]
 
@@ -62,7 +61,7 @@ Rectangle {
             adapter: root.adapter
             dayMode: root.dayMode
             onPageRequested: page => root.currentPage = page
-            onEditQuickAccessRequested: root.editQuickAccessRequested()
+            onEditQuickAccessRequested: panelHost.openQuick(true)
         }
         CamperV2Lights {
             anchors.fill: parent
@@ -98,7 +97,6 @@ Rectangle {
             dayMode: root.dayMode
             onOpenVictronSettings: root.openVictronSettings()
             onCloseRequested: root.closeRequested()
-            onDesignSelected: version => root.designSelected(version)
         }
     }
 
@@ -109,5 +107,12 @@ Rectangle {
         currentPage: root.currentPage
         dayMode: root.dayMode
         onPageRequested: page => root.currentPage = page
+    }
+
+    CamperV2PanelHost {
+        id: panelHost
+        anchors.fill: parent
+        adapter: root.adapter
+        dayMode: root.dayMode
     }
 }

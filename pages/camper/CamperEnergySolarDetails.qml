@@ -351,13 +351,13 @@ Item {
             font.bold: true
         }
         CamperTouchButton {
-            visible: view.indevolt.gridConnection && view.indevolt.gridConnection.available
+            visible: Boolean(view.indevolt.gridConnection && view.indevolt.gridConnection.available === true)
             x: 166
             y: 181
             width: 100
             height: 36
             label: view.indevolt.gridConnection && view.indevolt.gridConnection.on ? "TRENNEN" : "FREIGEBEN"
-            active: view.indevolt.gridConnection && view.indevolt.gridConnection.on === true
+            active: Boolean(view.indevolt.gridConnection && view.indevolt.gridConnection.on === true)
             enabled: view.controlsEnabled
             onClicked: view.indevoltGridCommandRequested(!(view.indevolt.gridConnection && view.indevolt.gridConnection.on))
         }
@@ -422,7 +422,7 @@ Item {
             text: view.indevolt.gridConnection && view.indevolt.gridConnection.available ? "Campernetz " + view.fmt(view.indevolt.gridConnection.voltage, 1, " V") + " · " + view.fmt(view.indevolt.gridConnection.power, 0, " W") : "AC Ausgang " + view.fmt(view.indevolt.acOutputPower, 0, " W") + " · Eingang " + view.fmt(view.indevolt.acInputPower, 0, " W")
             color: view.indevolt.gridConnection && view.indevolt.gridConnection.on ? view.greenColor : view.mutedColor
             font.pixelSize: 8
-            font.bold: view.indevolt.gridConnection && view.indevolt.gridConnection.available
+            font.bold: Boolean(view.indevolt.gridConnection && view.indevolt.gridConnection.available === true)
         }
     }
 }
