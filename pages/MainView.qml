@@ -26,6 +26,7 @@ FocusScope {
 
 	property bool mainViewVisible: UiConfig.applicationVisible && !UiConfig.splashScreenVisible
 	onMainViewVisibleChanged: if (mainViewVisible) console.info("MainView: UI loaded and visible")
+	property bool camperUiVisible: true
 
 	// To reduce the animation load, disable page animations when the PageStack is transitioning
 	// between pages, or when flicking between the main pages. Note that animations are still
@@ -75,6 +76,24 @@ FocusScope {
 		_loadedPages = 0
 	}
 
+	function showVictronSettings() {
+		pageManager.popAllPages(StackView.Immediate)
+		cardsLoader.hide()
+		navBar.setCurrentPage("SettingsPage.qml")
+		camperUiVisible = false
+	}
+
+	function showVictronUi() {
+		cardsLoader.hide()
+		camperUiVisible = false
+	}
+
+	function showCamperUi() {
+		cardsLoader.hide()
+		camperUiVisible = true
+		camperShell.forceActiveFocus()
+	}
+
 	Keys.onPressed: (event) => {
 		if (!Global.keyNavigationEnabled) {
 			event.accepted = false
@@ -113,7 +132,7 @@ FocusScope {
 		}
 		event.accepted = false
 	}
-	Keys.enabled: Global.keyNavigationEnabled
+	Keys.enabled: Global.keyNavigationEnabled && !root.camperUiVisible
 
 	PageManager {
 		id: pageManager
@@ -547,6 +566,58 @@ FocusScope {
 		}
 		sourceComponent: CpuMonitor {
 			color: root.backgroundColor
+		}
+	}
+
+	CamperShell {
+		id: camperShell
+
+		anchors.fill: parent
+		z: 1000
+		visible: root.camperUiVisible
+		enabled: visible
+		focus: visible
+		onOpenVictronSettings: root.showVictronSettings()
+		onCloseRequested: root.showVictronUi()
+	}
+
+	// The Ford X button hides its overlay. On gui-v2 the standard Victron UI is the
+	// preserved application underneath, so provide an explicit route back to Camper.
+	Rectangle {
+		id: camperReturnButton
+
+		x: (parent.width - width) / 2
+		y: 6
+		width: 124
+		height: 40
+		z: 1001
+		visible: !root.camperUiVisible
+		radius: 10
+		color: camperReturnArea.pressed ? "#102d3d" : "#0c141b"
+		border.color: "#45c9fa"
+		border.width: 2
+
+		CamperLineIcon {
+			x: 11
+			anchors.verticalCenter: parent.verticalCenter
+			width: 24
+			height: 24
+			kind: "home"
+			lineColor: "#45c9fa"
+			strokeWidth: 2
+		}
+		Text {
+			x: 43
+			anchors.verticalCenter: parent.verticalCenter
+			text: "CAMPER"
+			color: "#f4f8fb"
+			font.pixelSize: 11
+			font.bold: true
+		}
+		MouseArea {
+			id: camperReturnArea
+			anchors.fill: parent
+			onClicked: root.showCamperUi()
 		}
 	}
 }

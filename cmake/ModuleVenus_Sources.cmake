@@ -29,6 +29,11 @@ set (VictronVenusOS_QML_MODULE_SOURCES
     components/BriefCenterDisplay.qml
     components/CaptionLabel.qml
     components/CardViewLoader.qml
+    components/camper/CamperLineIcon.qml
+    components/camper/CamperMetricTile.qml
+    components/camper/CamperNavBar.qml
+    components/camper/CamperTouchButton.qml
+    components/camper/CamperViewport.qml
     components/CircularMultiGauge.qml
     components/CircularSingleGauge.qml
     components/CheapBarGauge.qml
@@ -319,6 +324,7 @@ set (VictronVenusOS_QML_MODULE_SOURCES
 
     data/AcInputs.qml
     data/DataManager.qml
+    data/camper/CamperVictronAdapter.qml
     data/DcInputs.qml
     data/EnvironmentInputs.qml
     data/Ess.qml
@@ -370,6 +376,8 @@ set (VictronVenusOS_QML_MODULE_SOURCES
     pages/LevelsPage.qml
     pages/LevelsTab.qml
     pages/MainView.qml
+    pages/camper/CamperHome.qml
+    pages/camper/CamperShell.qml
     pages/NotificationLayer.qml
     pages/NotificationsPage.qml
     pages/OverviewPage.qml
@@ -776,6 +784,7 @@ set(VictronVenusOS_RESOURCES
     images/alternator.svg
     images/breadcrumb_lhs.svg
     images/breadcrumb_rhs.svg
+    images/camper_logo.png
     images/icon_arrow.svg
     images/icon_battery_24.svg
     images/icon_battery_charging_24.svg
