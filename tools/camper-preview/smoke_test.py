@@ -53,7 +53,35 @@ def main() -> int:
 	click(window, 667, 451)
 	expect(window, "lastRequestedPage", 5)
 
-	print("PASS touch targets: settings, close, HOME, LICHT, 12/230")
+	click(window, 130, 451)
+	expect(window, "lastRequestedPage", 0)
+
+	click(window, 722, 308)
+	expect(window, "currentCamperPage", 12)
+
+	click(window, 354, 179)
+	expect(window, "quickSettingsCount", 1)
+
+	click(window, 726, 28)
+	expect(window, "currentCamperPage", 0)
+
+	click(window, 105, 360)
+	expect(window, "quickCommandCount", 1)
+
+	for x, y, expected_page in (
+		(100, 110, 8),
+		(300, 110, 7),
+		(500, 110, 11),
+		(700, 110, 10),
+		(100, 185, 6),
+		(100, 260, 9),
+	):
+		click(window, x, y)
+		expect(window, "currentCamperPage", expected_page)
+		click(window, 52, 86)
+		expect(window, "currentCamperPage", 0)
+
+	print("PASS touch targets: settings, close, nav, six detail pages, quick-access editor and resolved command")
 	return 0
 
 

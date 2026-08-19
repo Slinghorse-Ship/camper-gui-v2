@@ -30,10 +30,14 @@ set (VictronVenusOS_QML_MODULE_SOURCES
     components/CaptionLabel.qml
     components/CardViewLoader.qml
     components/camper/CamperLineIcon.qml
+    components/camper/CamperDimmerOverlay.qml
     components/camper/CamperMetricTile.qml
     components/camper/CamperNavBar.qml
+    components/camper/CamperPageHeader.qml
     components/camper/CamperStyle.qml
     components/camper/CamperTouchButton.qml
+    components/camper/CamperVehicleLightCard.qml
+    components/camper/CamperVehicleLightOverlay.qml
     components/camper/CamperViewport.qml
     components/CircularMultiGauge.qml
     components/CircularSingleGauge.qml
@@ -325,6 +329,8 @@ set (VictronVenusOS_QML_MODULE_SOURCES
 
     data/AcInputs.qml
     data/DataManager.qml
+    data/camper/CamperBackendAdapter.qml
+    data/camper/CamperNodeRedAdapter.qml
     data/camper/CamperVictronAdapter.qml
     data/DcInputs.qml
     data/EnvironmentInputs.qml
@@ -377,8 +383,18 @@ set (VictronVenusOS_QML_MODULE_SOURCES
     pages/LevelsPage.qml
     pages/LevelsTab.qml
     pages/MainView.qml
+    pages/camper/CamperBatteryDetails.qml
+    pages/camper/CamperDetails.qml
+    pages/camper/CamperEnergySolarDetails.qml
+    pages/camper/CamperHeaterDetails.qml
     pages/camper/CamperHome.qml
+    pages/camper/CamperLights.qml
+    pages/camper/CamperMaxxFanDetails.qml
+    pages/camper/CamperPower.qml
+    pages/camper/CamperQuickAccess.qml
     pages/camper/CamperShell.qml
+    pages/camper/CamperTemperatureDetails.qml
+    pages/camper/CamperWaterDetails.qml
     pages/NotificationLayer.qml
     pages/NotificationsPage.qml
     pages/OverviewPage.qml
@@ -786,6 +802,8 @@ set(VictronVenusOS_RESOURCES
     images/breadcrumb_lhs.svg
     images/breadcrumb_rhs.svg
     images/camper_logo.png
+    images/camper_vehicle_left.png
+    images/camper_vehicle_right.png
     images/icon_arrow.svg
     images/icon_battery_24.svg
     images/icon_battery_charging_24.svg

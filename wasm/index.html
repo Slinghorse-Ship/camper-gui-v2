@@ -537,8 +537,11 @@
                         argumentList.push('--mock-conf', mockConf);
                     }
                 } else {
+                    const nodeRedUrl = location.protocol === 'https:'
+                        ? 'https://' + document.location.hostname + ':1881'
+                        : 'http://' + document.location.hostname + ':1880';
                     argumentList.push(
-                        '--nodeRedUrl', 'https://' + document.location.host + ':1881',
+                        '--nodeRedUrl', nodeRedUrl,
                         '--signalKUrl', 'http://' + document.location.host + ':3000',
                     );
                 }

@@ -18,6 +18,7 @@ from PySide6.QtQml import QQmlApplicationEngine
 def main() -> int:
 	qml_path = Path(__file__).with_name("Main.qml").resolve()
 	output_path = Path(sys.argv[1] if len(sys.argv) > 1 else "camper-phase2.png").resolve()
+	page = int(sys.argv[2]) if len(sys.argv) > 2 else 0
 	output_path.parent.mkdir(parents=True, exist_ok=True)
 	print(f"Loading {qml_path}", flush=True)
 
@@ -30,6 +31,7 @@ def main() -> int:
 		return 2
 
 	window = engine.rootObjects()[0]
+	window.setProperty("currentCamperPage", page)
 
 	def capture() -> None:
 		print("Capturing frame", flush=True)
