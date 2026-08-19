@@ -243,6 +243,8 @@ Canvas {
         } else if (kind === "back") {
             line(c, [[w * .78, h * .22], [w * .42, h * .5], [w * .78, h * .78]]);
             line(c, [[w * .42, h * .5], [w * .92, h * .5]]);
+        } else if (kind === "check") {
+            line(c, [[w * .18, h * .53], [w * .42, h * .76], [w * .84, h * .26]]);
         } else if (kind === "settings") {
             c.beginPath();
             c.arc(x, y, w * .2, 0, Math.PI * 2);

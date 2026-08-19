@@ -5,6 +5,7 @@ Item {
     id: root
 
     required property var adapter
+    property url v2LogoSource: "qrc:/images/camper_transit_line_dark.png"
     signal openVictronSettings
     signal closeRequested
     signal pageRequested(int page)
@@ -73,8 +74,14 @@ Item {
         width: 800
         height: 58
         pageTitle: "12 / 230 V"
+        v2LogoSource: root.v2LogoSource
         connected: root.adapter.customConnected === true
-        onOpenVictronSettings: root.openVictronSettings()
+        onOpenVictronSettings: {
+            if (visual.designV2)
+                root.pageRequested(13);
+            else
+                root.openVictronSettings();
+        }
         onCloseRequested: root.closeRequested()
     }
 

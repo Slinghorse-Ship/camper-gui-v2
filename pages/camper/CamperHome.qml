@@ -11,6 +11,7 @@ Item {
 
     required property var adapter
     property url logoSource: "qrc:/images/camper_logo.png"
+    property url v2LogoSource: "qrc:/images/camper_transit_line_dark.png"
     signal openVictronSettings
     signal closeRequested
     signal pageRequested(int page)
@@ -93,123 +94,20 @@ Item {
         }
     }
 
-    Rectangle {
-        x: 0
-        y: 0
+    CamperPageHeader {
         width: 800
         height: 58
-        color: visual.header
-        border.color: root.line
-
-        Image {
-            x: 5
-            y: 4
-            width: 56
-            height: 50
-            source: root.logoSource
-            fillMode: Image.PreserveAspectFit
-            smooth: true
+        pageTitle: "HOME"
+        logoSource: root.logoSource
+        v2LogoSource: root.v2LogoSource
+        connected: root.customConnected
+        onOpenVictronSettings: {
+            if (visual.designV2)
+                root.pageRequested(13);
+            else
+                root.openVictronSettings();
         }
-        Text {
-            x: 65
-            y: 10
-            text: "FORD TRANSIT CAMPER"
-            color: root.textColor
-            font.pixelSize: 17
-            font.bold: true
-        }
-        Text {
-            x: 65
-            y: 31
-            text: "· HOME"
-            color: root.blue
-            font.pixelSize: 11
-            font.bold: true
-        }
-
-        Rectangle {
-            x: 524
-            y: 14
-            width: 112
-            height: 29
-            radius: 15
-            color: root.inner
-            border.color: root.customConnected ? root.green : visual.red
-
-            Rectangle {
-                x: 10
-                y: 10
-                width: 8
-                height: 8
-                radius: 4
-                color: root.customConnected ? root.green : visual.red
-            }
-            Text {
-                x: 24
-                anchors.verticalCenter: parent.verticalCenter
-                text: root.customConnected ? "VERBUNDEN" : "VERBINDUNG"
-                color: root.textColor
-                font.pixelSize: 9
-                font.bold: true
-            }
-        }
-
-        Rectangle {
-            x: 647
-            y: 9
-            width: 92
-            height: 39
-            radius: 9
-            color: settingsArea.pressed ? root.inner : "transparent"
-            border.color: root.line
-
-            CamperLineIcon {
-                x: 9
-                y: 8
-                width: 22
-                height: 22
-                kind: "settings"
-                lineColor: root.textColor
-                strokeWidth: 1.8
-            }
-            Text {
-                x: 37
-                anchors.verticalCenter: parent.verticalCenter
-                text: "EINST."
-                color: root.textColor
-                font.pixelSize: 10
-                font.bold: true
-            }
-            MouseArea {
-                id: settingsArea
-                anchors.fill: parent
-                onClicked: root.openVictronSettings()
-            }
-        }
-
-        Rectangle {
-            x: 748
-            y: 9
-            width: 42
-            height: 39
-            radius: 9
-            color: closeArea.pressed ? "#44232a" : "transparent"
-            border.color: "#5a333b"
-
-            CamperLineIcon {
-                anchors.centerIn: parent
-                width: 23
-                height: 23
-                kind: "close"
-                lineColor: root.textColor
-                strokeWidth: 2.6
-            }
-            MouseArea {
-                id: closeArea
-                anchors.fill: parent
-                onClicked: root.closeRequested()
-            }
-        }
+        onCloseRequested: root.closeRequested()
     }
 
     Item {

@@ -1,0 +1,11 @@
+singleton CamperDesignSettings 1.0 CamperDesignSettings.qml
+CamperDimmerOverlay 1.0 CamperDimmerOverlay.qml
+CamperLineIcon 1.0 CamperLineIcon.qml
+CamperMetricTile 1.0 CamperMetricTile.qml
+CamperNavBar 1.0 CamperNavBar.qml
+CamperPageHeader 1.0 CamperPageHeader.qml
+CamperStyle 1.0 CamperStyle.qml
+CamperTouchButton 1.0 CamperTouchButton.qml
+CamperVehicleLightCard 1.0 CamperVehicleLightCard.qml
+CamperVehicleLightOverlay 1.0 CamperVehicleLightOverlay.qml
+CamperViewport 1.0 CamperViewport.qml

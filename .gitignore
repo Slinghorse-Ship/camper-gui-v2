@@ -5,3 +5,4 @@ src/themeobjects.h
 build/
 build-*/
 outputs/
+__pycache__/

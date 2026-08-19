@@ -6,6 +6,7 @@ Item {
 
     required property var adapter
     required property int detailPage
+    property url v2LogoSource: "qrc:/images/camper_transit_line_dark.png"
     signal backRequested
     signal openVictronSettings
     signal closeRequested
@@ -50,8 +51,14 @@ Item {
         width: 800
         height: 56
         pageTitle: root.pageTitle
+        v2LogoSource: root.v2LogoSource
         connected: root.adapter.customConnected === true
-        onOpenVictronSettings: root.openVictronSettings()
+        onOpenVictronSettings: {
+            if (visual.designV2)
+                root.pageRequested(13);
+            else
+                root.openVictronSettings();
+        }
         onCloseRequested: root.closeRequested()
     }
 
@@ -168,7 +175,7 @@ Item {
         y: 422
         width: 800
         height: 58
-        currentPage: 0
+        currentPage: visual.designV2 ? (root.detailPage === 11 ? 11 : (root.detailPage === 6 || root.detailPage === 9 || root.detailPage === 10 ? 10 : (root.detailPage === 7 || root.detailPage === 8 ? 5 : 0))) : 0
         onPageRequested: page => root.pageRequested(page)
     }
 }

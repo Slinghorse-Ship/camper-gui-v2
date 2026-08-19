@@ -17,7 +17,7 @@ Rectangle {
         dayMode: card.dayMode
     }
 
-    radius: 12
+    radius: visual.designV2 ? 15 : 12
     color: lightOn ? visual.selectedBlue : visual.panel
     border.color: lightOn ? visual.blue : visual.border
     border.width: lightOn ? 2 : 1

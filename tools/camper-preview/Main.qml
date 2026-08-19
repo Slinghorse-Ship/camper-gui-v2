@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Window
+import "../../components/camper"
 import "../../pages/camper"
+import "../../pages/camper/v2"
 
 Window {
     id: window
@@ -12,6 +14,19 @@ Window {
     property int currentCamperPage: 0
     property int quickCommandCount: 0
     property int quickSettingsCount: 0
+    property int commandCount: 0
+    property string lastCommandTarget: ""
+    property string lastCommandAction: ""
+    property var lastCommandValue: null
+    property int lastCommandChannel: 0
+    property bool previewHighBeamVehicleOn: false
+    property bool previewHighBeamManualOn: false
+    property bool previewHighBeamOutputOnline: true
+    property int previewDesignVersion: 2
+    property int previewV2EnergyPane: 0
+
+    onPreviewDesignVersionChanged: CamperDesignSettings.setDesignVersion(previewDesignVersion)
+    Component.onCompleted: CamperDesignSettings.setDesignVersion(previewDesignVersion)
 
     width: 800
     height: 480
@@ -43,16 +58,53 @@ Window {
                     },
                     solar: {
                         power: 486,
-                        chargers: []
+                        chargers: [
+                            {
+                                name: "MPPT 100/30 · 1",
+                                online: true,
+                                power: 0,
+                                pvVoltage: 0.01,
+                                yieldTodayKwh: 0
+                            },
+                            {
+                                name: "MPPT 100/30 · 2",
+                                online: true,
+                                power: 478,
+                                pvVoltage: 42.97,
+                                yieldTodayKwh: 0.52
+                            },
+                            {
+                                name: "MPPT 150/45",
+                                online: false,
+                                power: null,
+                                pvVoltage: null,
+                                yieldTodayKwh: null
+                            }
+                        ]
                     },
-                    indevolt: {},
-                    orion: {}
+                    indevolt: {
+                        online: true,
+                        soc: 31,
+                        solarPower: 8,
+                        batteryPower: -5,
+                        gridConnection: {
+                            available: true,
+                            on: false
+                        }
+                    },
+                    orion: {
+                        online: false,
+                        on: false,
+                        power: null,
+                        voltage: null,
+                        current: null
+                    }
                 },
                 water: {
                     fresh: {
                         name: "FRISCHWASSER",
-                        level: 74,
-                        remainingLitres: 89
+                        level: null,
+                        remainingLitres: null
                     },
                     pump: {
                         on: true,
@@ -62,20 +114,40 @@ Window {
                 },
                 climate: {
                     roomTemperature: 21.6,
+                    automation: {
+                        enabled: true,
+                        mode: "auto",
+                        targetTemperature: 20,
+                        hysteresis: 1,
+                        fanSpeed: 50
+                    },
+                    temperatureSensors: {
+                        comfort: {
+                            temp: 21.6,
+                            humidity: 66
+                        }
+                    },
                     heater: {
+                        online: true,
                         on: false,
                         cooling: false,
+                        mode: "temperature",
                         setpoint: 22,
+                        durationMinutes: 0,
                         status: "Bereit"
                     },
                     fan: {
                         name: "MAXXFAN",
+                        online: true,
                         on: true,
-                        speed: 45
+                        speed: 40,
+                        mode: "forward",
+                        autoHold: false
                     }
                 },
                 power: {
                     inverter: {
+                        online: true,
                         on: false,
                         outputPower: 0
                     },
@@ -114,8 +186,10 @@ Window {
                 },
                 vehicle: {
                     highBeam: {
-                        on: false,
-                        manualOn: false,
+                        on: window.previewHighBeamVehicleOn || window.previewHighBeamManualOn,
+                        vehicleOn: window.previewHighBeamVehicleOn,
+                        manualOn: window.previewHighBeamManualOn,
+                        outputOnline: window.previewHighBeamOutputOnline,
                         outputChannel: 3
                     }
                 },
@@ -254,6 +328,11 @@ Window {
             })
 
         function command(target, action, value, extra) {
+            window.commandCount += 1;
+            window.lastCommandTarget = target;
+            window.lastCommandAction = action;
+            window.lastCommandValue = value;
+            window.lastCommandChannel = extra && extra.channel ? Number(extra.channel) : 0;
         }
         function activateQuick(item) {
             window.quickCommandCount += 1;
@@ -265,9 +344,10 @@ Window {
 
     CamperHome {
         anchors.fill: parent
-        visible: window.currentCamperPage === 0
+        visible: window.previewDesignVersion === 1 && window.currentCamperPage === 0
         adapter: previewAdapter
         logoSource: "../../images/camper_logo.png"
+        v2LogoSource: "../../images/camper_transit_line_dark.png"
         onOpenVictronSettings: window.settingsClickCount += 1
         onCloseRequested: window.closeClickCount += 1
         onPageRequested: page => {
@@ -279,10 +359,11 @@ Window {
 
     CamperLights {
         anchors.fill: parent
-        visible: window.currentCamperPage === 1
+        visible: window.previewDesignVersion === 1 && window.currentCamperPage === 1
         adapter: previewAdapter
         leftVehicleSource: "../../images/camper_vehicle_left.png"
         rightVehicleSource: "../../images/camper_vehicle_right.png"
+        v2LogoSource: "../../images/camper_transit_line_dark.png"
         onPageRequested: page => {
             window.lastRequestedPage = page;
             window.currentCamperPage = page;
@@ -291,8 +372,9 @@ Window {
 
     CamperPower {
         anchors.fill: parent
-        visible: window.currentCamperPage === 5
+        visible: window.previewDesignVersion === 1 && window.currentCamperPage === 5
         adapter: previewAdapter
+        v2LogoSource: "../../images/camper_transit_line_dark.png"
         onPageRequested: page => {
             window.lastRequestedPage = page;
             window.currentCamperPage = page;
@@ -301,9 +383,10 @@ Window {
 
     CamperDetails {
         anchors.fill: parent
-        visible: window.currentCamperPage >= 6 && window.currentCamperPage <= 11
+        visible: window.previewDesignVersion === 1 && window.currentCamperPage >= 6 && window.currentCamperPage <= 11
         adapter: previewAdapter
         detailPage: window.currentCamperPage
+        v2LogoSource: "../../images/camper_transit_line_dark.png"
         onBackRequested: window.currentCamperPage = 0
         onPageRequested: page => window.currentCamperPage = page
     }
@@ -313,11 +396,52 @@ Window {
         visible: window.currentCamperPage === 12
         adapter: previewAdapter
         logoSource: "../../images/camper_logo.png"
+        v2LogoSource: "../../images/camper_transit_line_dark.png"
         onBackRequested: window.currentCamperPage = 0
         onPageRequested: page => {
             window.lastRequestedPage = page;
             if (page === 0)
                 window.currentCamperPage = 0;
         }
+    }
+
+    CamperSystem {
+        anchors.fill: parent
+        visible: window.previewDesignVersion === 1 && window.currentCamperPage === 13
+        adapter: previewAdapter
+        v2LogoSource: "../../images/camper_transit_line_dark.png"
+        onOpenVictronSettings: window.settingsClickCount += 1
+        onCloseRequested: window.closeClickCount += 1
+        onPageRequested: page => {
+            window.lastRequestedPage = page;
+            window.currentCamperPage = page;
+        }
+        onDesignSelected: version => {
+            window.previewDesignVersion = version;
+            window.currentCamperPage = 0;
+        }
+    }
+
+    CamperV2Shell {
+        anchors.fill: parent
+        visible: window.previewDesignVersion === 2 && window.currentCamperPage !== 12
+        currentPage: Math.max(0, Math.min(5, window.currentCamperPage))
+        energyPane: window.previewV2EnergyPane
+        adapter: previewAdapter
+        darkLogoSource: "../../../images/camper_transit_line_dark.png"
+        lightLogoSource: "../../../images/camper_transit_line_light.png"
+        leftVehicleSource: "../../../images/camper_v2_vehicle_left.png"
+        rightVehicleSource: "../../../images/camper_v2_vehicle_right.png"
+        onCurrentPageChanged: {
+            if (window.previewDesignVersion === 2 && window.currentCamperPage <= 5)
+                window.currentCamperPage = currentPage;
+        }
+        onOpenVictronSettings: window.settingsClickCount += 1
+        onCloseRequested: window.closeClickCount += 1
+        onDesignSelected: version => {
+            window.previewDesignVersion = version;
+            window.currentCamperPage = 0;
+        }
+        onEditQuickAccessRequested: window.currentCamperPage = 12
     }
 }

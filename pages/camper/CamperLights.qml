@@ -7,6 +7,7 @@ Item {
     required property var adapter
     property url leftVehicleSource: "qrc:/images/camper_vehicle_left.png"
     property url rightVehicleSource: "qrc:/images/camper_vehicle_right.png"
+    property url v2LogoSource: "qrc:/images/camper_transit_line_dark.png"
     signal openVictronSettings
     signal closeRequested
     signal pageRequested(int page)
@@ -89,8 +90,14 @@ Item {
         width: 800
         height: 58
         pageTitle: "LICHT"
+        v2LogoSource: root.v2LogoSource
         connected: root.adapter.customConnected === true
-        onOpenVictronSettings: root.openVictronSettings()
+        onOpenVictronSettings: {
+            if (visual.designV2)
+                root.pageRequested(13);
+            else
+                root.openVictronSettings();
+        }
         onCloseRequested: root.closeRequested()
     }
 

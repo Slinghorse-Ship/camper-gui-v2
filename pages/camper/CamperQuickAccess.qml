@@ -8,6 +8,7 @@ Item {
 
     required property var adapter
     property url logoSource: "qrc:/images/camper_logo.png"
+    property url v2LogoSource: "qrc:/images/camper_transit_line_dark.png"
     property var quickAccessIds: ["switch:water_pump", "switch:starlink", "switch:dc_outlets_left", "light:inside_main"]
     signal pageRequested(int page)
     signal backRequested
@@ -102,11 +103,11 @@ Item {
         border.color: root.line
 
         Image {
-            x: 5
-            y: 4
-            width: 56
-            height: 50
-            source: root.logoSource
+            x: visual.designV2 ? 14 : 5
+            y: visual.designV2 ? 8 : 4
+            width: visual.designV2 ? 55 : 56
+            height: visual.designV2 ? 35 : 50
+            source: visual.designV2 ? root.v2LogoSource : root.logoSource
             fillMode: Image.PreserveAspectFit
             smooth: true
         }
@@ -117,13 +118,14 @@ Item {
             color: root.textColor
             font.pixelSize: 17
             font.bold: true
+            visible: !visual.designV2
         }
         Text {
-            x: 65
-            y: 31
-            text: "· SCHNELLZUGRIFF"
-            color: root.blue
-            font.pixelSize: 11
+            x: visual.designV2 ? 79 : 65
+            y: visual.designV2 ? 14 : 31
+            text: visual.designV2 ? "Schnellzugriff" : "· SCHNELLZUGRIFF"
+            color: visual.designV2 ? root.textColor : root.blue
+            font.pixelSize: visual.designV2 ? 19 : 11
             font.bold: true
         }
         CamperTouchButton {

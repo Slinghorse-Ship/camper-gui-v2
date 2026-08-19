@@ -12,98 +12,105 @@ import QtQuick
 import Victron.VenusOS
 
 SwipeViewPage {
-	id: root
+    id: root
 
-	//% "Settings"
-	title: qsTrId("nav_settings")
-	iconSource: "qrc:/images/settings.svg"
-	url: "qrc:/qt/qml/Victron/VenusOS/pages/SettingsPage.qml"
-	topLeftButton: VenusOS.StatusBar_LeftButton_ControlsInactive
-	focusPolicy: Qt.TabFocus
-	showTopGradient: Theme.screenSize === Theme.Portrait && !settingsListView.atYBeginning
+    //% "Settings"
+    title: qsTrId("nav_settings")
+    iconSource: "qrc:/images/settings.svg"
+    url: "qrc:/qt/qml/Victron/VenusOS/pages/SettingsPage.qml"
+    topLeftButton: VenusOS.StatusBar_LeftButton_ControlsInactive
+    focusPolicy: Qt.TabFocus
+    showTopGradient: Theme.screenSize === Theme.Portrait && !settingsListView.atYBeginning
 
-	function goToConnectivityPage(pageId) {
-		const page = Global.pageManager.pushPage(connectivityListItem.pageSource, connectivityListItem.pageProperties, PageStack.Immediate)
-		if (page) {
-			page.goToPage(pageId)
-		}
-	}
+    function goToConnectivityPage(pageId) {
+        const page = Global.pageManager.pushPage(connectivityListItem.pageSource, connectivityListItem.pageProperties, PageStack.Immediate);
+        if (page) {
+            page.goToPage(pageId);
+        }
+    }
 
-	GradientListView {
-		id: settingsListView
+    GradientListView {
+        id: settingsListView
 
-		clip: true
-		model: VisibleItemModel {
-			SettingsListNavigation {
-				text: CommonWords.devices
-				//% "All connected devices"
-				caption: qsTrId("settings_all_connected_devices")
-				pageSource: "/pages/settings/devicelist/DeviceListPage.qml"
-				iconSource: "qrc:/images/icon_devices_32.svg"
-			}
+        clip: true
+        model: VisibleItemModel {
+            SettingsListNavigation {
+                text: "CamperControl"
+                caption: "Design V1 / V2 und Camper-System"
+                pageSource: "/pages/settings/PageCamperSettings.qml"
+                iconSource: "qrc:/images/icon_system_32.svg"
+            }
 
-			SettingsListNavigation {
-				topInset: Theme.geometry_listItem_itemSeparator_height
-				//% "General"
-				text: qsTrId("settings_general")
-				//% "Access control, Display, Firmware, Support"
-				caption: qsTrId("settings_access_control_display_firmware")
-				pageSource: "/pages/settings/PageSettingsGeneral.qml"
-				iconSource: "qrc:/images/icon_general_32.svg"
-			}
+            SettingsListNavigation {
+                text: CommonWords.devices
+                //% "All connected devices"
+                caption: qsTrId("settings_all_connected_devices")
+                pageSource: "/pages/settings/devicelist/DeviceListPage.qml"
+                iconSource: "qrc:/images/icon_devices_32.svg"
+            }
 
-			SettingsListNavigation {
-				id: connectivityListItem
+            SettingsListNavigation {
+                topInset: Theme.geometry_listItem_itemSeparator_height
+                //% "General"
+                text: qsTrId("settings_general")
+                //% "Access control, Display, Firmware, Support"
+                caption: qsTrId("settings_access_control_display_firmware")
+                pageSource: "/pages/settings/PageSettingsGeneral.qml"
+                iconSource: "qrc:/images/icon_general_32.svg"
+            }
 
-				//% "Connectivity"
-				text: qsTrId("settings_connectivity")
-				//% "Ethernet, Wi-Fi, Bluetooth, VE.Can"
-				caption: qsTrId("settings_ethernet_wifi_bluetooth_vecan")
-				pageSource: "/pages/settings/PageSettingsConnectivity.qml"
-				iconSource: "qrc:/images/icon_connectivity_32.svg"
-			}
+            SettingsListNavigation {
+                id: connectivityListItem
 
-			SettingsListNavigation {
-				//% "VRM"
-				text: qsTrId("settings_vrm")
-				//% "Remote monitoring portal"
-				caption: qsTrId("settings_remote_monitoring_portal")
-				pageSource: "/pages/settings/PageSettingsLogger.qml"
-				iconSource: "qrc:/images/icon_vrm_32.svg"
-			}
+                //% "Connectivity"
+                text: qsTrId("settings_connectivity")
+                //% "Ethernet, Wi-Fi, Bluetooth, VE.Can"
+                caption: qsTrId("settings_ethernet_wifi_bluetooth_vecan")
+                pageSource: "/pages/settings/PageSettingsConnectivity.qml"
+                iconSource: "qrc:/images/icon_connectivity_32.svg"
+            }
 
-			SettingsListHeader {
-				//% "Advanced"
-				text: qsTrId("settings_advanced")
-			}
+            SettingsListNavigation {
+                //% "VRM"
+                text: qsTrId("settings_vrm")
+                //% "Remote monitoring portal"
+                caption: qsTrId("settings_remote_monitoring_portal")
+                pageSource: "/pages/settings/PageSettingsLogger.qml"
+                iconSource: "qrc:/images/icon_vrm_32.svg"
+            }
 
-			SettingsListNavigation {
-				//% "Integrations"
-				text: qsTrId("settings_integrations")
-				//% "Relays, Sensors, PV Inverters, Modbus, Node-RED"
-				caption: qsTrId("settings_relays_sensors_tanks")
-				pageSource: "/pages/settings/PageSettingsIntegrations.qml"
-				iconSource: "qrc:/images/icon_integration_32.svg"
-			}
+            SettingsListHeader {
+                //% "Advanced"
+                text: qsTrId("settings_advanced")
+            }
 
-			SettingsListNavigation {
-				//% "System Setup"
-				text: qsTrId("settings_system_setup")
-				//% "AC/DC system, ESS, DVCC, Battery..."
-				caption: qsTrId("settings_acdcsystem_ess_dvcc_battery")
-				pageSource: "/pages/settings/PageSettingsSystem.qml"
-				iconSource: "qrc:/images/icon_system_32.svg"
-			}
+            SettingsListNavigation {
+                //% "Integrations"
+                text: qsTrId("settings_integrations")
+                //% "Relays, Sensors, PV Inverters, Modbus, Node-RED"
+                caption: qsTrId("settings_relays_sensors_tanks")
+                pageSource: "/pages/settings/PageSettingsIntegrations.qml"
+                iconSource: "qrc:/images/icon_integration_32.svg"
+            }
 
-			SettingsListNavigation {
-				//% "Debug & Develop"
-				text: qsTrId("settings_debug_and_develop")
-				//% "Profiling tools, debug statistics, app version..."
-				caption: qsTrId("settings_profilingtools_debugstatistics_appversion")
-				pageSource: "/pages/settings/debug/PageDebug.qml"
-				iconSource: "qrc:/images/icon_debug_32.svg"
-				showAccessLevel: VenusOS.User_AccessType_SuperUser
-			}
-		}
-	}
+            SettingsListNavigation {
+                //% "System Setup"
+                text: qsTrId("settings_system_setup")
+                //% "AC/DC system, ESS, DVCC, Battery..."
+                caption: qsTrId("settings_acdcsystem_ess_dvcc_battery")
+                pageSource: "/pages/settings/PageSettingsSystem.qml"
+                iconSource: "qrc:/images/icon_system_32.svg"
+            }
+
+            SettingsListNavigation {
+                //% "Debug & Develop"
+                text: qsTrId("settings_debug_and_develop")
+                //% "Profiling tools, debug statistics, app version..."
+                caption: qsTrId("settings_profilingtools_debugstatistics_appversion")
+                pageSource: "/pages/settings/debug/PageDebug.qml"
+                iconSource: "qrc:/images/icon_debug_32.svg"
+                showAccessLevel: VenusOS.User_AccessType_SuperUser
+            }
+        }
+    }
 }
