@@ -30,7 +30,7 @@ Item {
     }
 
     function climatePatch(delta) {
-        if (!valid(automation.targetTemperature))
+        if (adapter.customCommandsAllowed !== true || !valid(automation.targetTemperature))
             return;
         adapter.command("settings", "patch", null, {
             patch: {
@@ -46,6 +46,8 @@ Item {
     }
 
     function setHeaterSetting(key, value) {
+        if (adapter.customCommandsAllowed !== true)
+            return;
         adapter.command("heater", "setting", value, {
             key: key
         });
@@ -104,7 +106,7 @@ Item {
             MouseArea {
                 id: comfortMinus
                 anchors.fill: parent
-                enabled: root.valid(root.automation.targetTemperature)
+                enabled: root.adapter.customCommandsAllowed === true && root.valid(root.automation.targetTemperature)
                 onClicked: root.climatePatch(-1)
             }
         }
@@ -137,7 +139,7 @@ Item {
             MouseArea {
                 id: comfortPlus
                 anchors.fill: parent
-                enabled: root.valid(root.automation.targetTemperature)
+                enabled: root.adapter.customCommandsAllowed === true && root.valid(root.automation.targetTemperature)
                 onClicked: root.climatePatch(1)
             }
         }
@@ -224,7 +226,7 @@ Item {
                     }
                     MouseArea {
                         anchors.fill: parent
-                        enabled: root.heater.online === true
+                        enabled: root.adapter.customCommandsAllowed === true && root.heater.online === true
                         onClicked: root.setHeaterSetting("mode", parent.modelData.mode)
                     }
                 }
@@ -332,7 +334,7 @@ Item {
             }
             MouseArea {
                 anchors.fill: parent
-                enabled: root.heater.online === true && root.heater.cooling !== true && (root.heater.on === true || !root.heater.startBlocked)
+                enabled: root.adapter.customCommandsAllowed === true && root.heater.online === true && root.heater.cooling !== true && (root.heater.on === true || !root.heater.startBlocked)
                 onClicked: root.adapter.command("heater", root.heater.on === true ? "stop" : "start", null, ({}))
             }
         }
@@ -373,7 +375,7 @@ Item {
             height: 38
             dayMode: root.dayMode
             value: root.valid(root.fan.speed) ? Number(root.fan.speed) : 0
-            available: root.fan.online === true
+            available: root.adapter.customCommandsAllowed === true && root.fan.online === true
             accent: style.blue
             onMoved: value => root.adapter.command("maxxfan", "speed", Math.round(value / 10) * 10, ({}))
         }
@@ -415,7 +417,7 @@ Item {
                     }
                     MouseArea {
                         anchors.fill: parent
-                        enabled: root.fan.online === true
+                        enabled: root.adapter.customCommandsAllowed === true && root.fan.online === true
                         onClicked: {
                             if (parent.modelData.mode === "auto")
                                 root.adapter.command("maxxfan", "auto", root.fan.autoHold !== true, ({}));
@@ -444,7 +446,7 @@ Item {
             }
             MouseArea {
                 anchors.fill: parent
-                enabled: root.fan.online === true
+                enabled: root.adapter.customCommandsAllowed === true && root.fan.online === true
                 onClicked: root.adapter.command("maxxfan", "set", root.fan.on !== true, ({}))
             }
         }

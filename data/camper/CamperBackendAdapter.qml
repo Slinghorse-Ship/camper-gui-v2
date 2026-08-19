@@ -7,7 +7,12 @@ Item {
 
     property alias pollingEnabled: custom.pollingEnabled
     readonly property bool connected: nativeData.connected
-    readonly property bool customConnected: custom.connected
+    // customReadConnected remains true in VRM monitor-only mode. The legacy
+    // customConnected name is deliberately the control-capable connection so
+    // existing buttons become unavailable without hiding received values.
+    readonly property bool customReadConnected: custom.connected
+    readonly property bool customCommandsAllowed: custom.connected && custom.commandsAllowed
+    readonly property bool customConnected: customCommandsAllowed
     readonly property var stateData: custom.stateData
     readonly property string errorText: custom.errorText
 

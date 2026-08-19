@@ -74,7 +74,7 @@ Item {
                 },
                 {
                     label: "Node-RED",
-                    connected: root.adapter.customConnected === true,
+                    connected: root.adapter.customReadConnected === true,
                     icon: "system"
                 }
             ]

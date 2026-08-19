@@ -42,7 +42,7 @@ Item {
     }
 
     function available(light) {
-        return Number(light && light.channel || 0) > 0;
+        return adapter.customCommandsAllowed === true && Number(light && light.channel || 0) > 0;
     }
 
     function setLight(light, enabled) {
@@ -73,7 +73,7 @@ Item {
     }
 
     function runScene(sceneId) {
-        if (adapter.customConnected === true)
+        if (adapter.customCommandsAllowed === true)
             adapter.command("scene", "run", sceneId, {
                 sceneId: sceneId
             });
@@ -210,7 +210,7 @@ Item {
                 y: parent.height * (root.rightView ? .039 : .078)
                 width: parent.width * .315
                 height: parent.height * .145
-                enabled: root.highBeamAvailable && root.highBeamChannel > 0
+                enabled: root.adapter.customCommandsAllowed === true && root.highBeamAvailable && root.highBeamChannel > 0
                 onClicked: {
                     root.selectedLightId = "high_beam_manual";
                     root.adapter.command("starpower", "set", root.highBeamManualOn ? 0 : 1, {
@@ -300,7 +300,7 @@ Item {
                     height: 31
                     radius: 10
                     color: sceneMouse.pressed ? style.pressed : style.inner
-                    opacity: root.adapter.customConnected === true ? 1 : .5
+                    opacity: root.adapter.customCommandsAllowed === true ? 1 : .5
                     Text {
                         anchors.centerIn: parent
                         text: parent.modelData.label
@@ -311,7 +311,7 @@ Item {
                     MouseArea {
                         id: sceneMouse
                         anchors.fill: parent
-                        enabled: root.adapter.customConnected === true
+                        enabled: root.adapter.customCommandsAllowed === true
                         onClicked: root.runScene(parent.modelData.id)
                     }
                 }
@@ -489,7 +489,7 @@ Item {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: root.highBeamAvailable
+                    enabled: root.adapter.customCommandsAllowed === true && root.highBeamAvailable
                     onClicked: {
                         root.selectedLightId = "high_beam_manual";
                         root.adapter.command("starpower", "set", root.highBeamManualOn ? 0 : 1, {

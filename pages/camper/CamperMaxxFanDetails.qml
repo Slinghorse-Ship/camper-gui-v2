@@ -6,6 +6,7 @@ Item {
 
     property bool dayMode: false
     property var fan: ({})
+    property bool controlsEnabled: true
     signal backRequested
     signal commandRequested(string action, var value)
 
@@ -91,6 +92,7 @@ Item {
             height: 38
             label: view.fan.on ? "AUSSCHALTEN" : "EINSCHALTEN"
             active: view.fan.on === true
+            enabled: view.controlsEnabled
             onClicked: view.commandRequested("set", !view.fan.on)
         }
     }
@@ -267,6 +269,7 @@ Item {
             width: 54
             height: 46
             label: "−"
+            enabled: view.controlsEnabled
             onClicked: view.commandRequested("speed", Math.max(0, Number(view.fan.speed || 0) - 10))
         }
         Text {
@@ -285,6 +288,7 @@ Item {
             width: 54
             height: 46
             label: "+"
+            enabled: view.controlsEnabled
             onClicked: view.commandRequested("speed", Math.min(100, Number(view.fan.speed || 0) + 10))
         }
         Repeater {
@@ -296,6 +300,7 @@ Item {
                 height: 46
                 label: modelData + "%"
                 active: Number(view.fan.speed || 0) === modelData
+                enabled: view.controlsEnabled
                 onClicked: view.commandRequested("speed", modelData)
             }
         }
@@ -322,6 +327,7 @@ Item {
             height: 47
             label: "VORWÄRTS"
             active: view.fan.mode !== "reverse"
+            enabled: view.controlsEnabled
             onClicked: view.commandRequested("mode", "forward")
         }
         CamperTouchButton {
@@ -331,6 +337,7 @@ Item {
             height: 47
             label: "RÜCKWÄRTS"
             active: view.fan.mode === "reverse"
+            enabled: view.controlsEnabled
             onClicked: view.commandRequested("mode", "reverse")
         }
 
@@ -356,6 +363,7 @@ Item {
             height: 48
             label: "HAUBE UMSCHALTEN"
             active: Number(view.fan.lid) === 1
+            enabled: view.controlsEnabled
             onClicked: view.commandRequested("lid", true)
         }
         CamperTouchButton {
@@ -365,6 +373,7 @@ Item {
             height: 48
             label: view.fan.autoHold ? "AUTOMATIK AUS" : "AUTOMATIK AN"
             active: view.fan.autoHold === true
+            enabled: view.controlsEnabled
             onClicked: view.commandRequested("auto", !view.fan.autoHold)
         }
         Text {

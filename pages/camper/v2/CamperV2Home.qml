@@ -69,7 +69,7 @@ Item {
     }
 
     function changeTarget(delta) {
-        if (!valid(root.automation.targetTemperature))
+        if (root.adapter.customCommandsAllowed !== true || !valid(root.automation.targetTemperature))
             return;
         root.adapter.command("settings", "patch", null, {
             patch: {
@@ -351,7 +351,7 @@ Item {
             MouseArea {
                 id: minusMouse
                 anchors.fill: parent
-                enabled: root.valid(root.targetTemperature())
+                enabled: root.adapter.customCommandsAllowed === true && root.valid(root.targetTemperature())
                 onClicked: root.changeTarget(-1)
             }
         }
@@ -386,7 +386,7 @@ Item {
             MouseArea {
                 id: plusMouse
                 anchors.fill: parent
-                enabled: root.valid(root.targetTemperature())
+                enabled: root.adapter.customCommandsAllowed === true && root.valid(root.targetTemperature())
                 onClicked: root.changeTarget(1)
             }
         }
@@ -485,7 +485,7 @@ Item {
                     }
                     MouseArea {
                         anchors.fill: parent
-                        enabled: parent.isAvailable
+                        enabled: root.adapter.customCommandsAllowed === true && parent.isAvailable
                         onClicked: root.adapter.activateQuick(parent.modelData)
                     }
                 }
@@ -495,7 +495,7 @@ Item {
         Text {
             anchors.centerIn: parent
             visible: root.quickAccess.length === 0
-            text: root.adapter.customConnected === true ? "Noch kein Schnellzugriff gewählt" : "Camper-Backend nicht verbunden"
+            text: root.adapter.customReadConnected === true ? "Noch kein Schnellzugriff gewählt" : "Camper-Backend nicht verbunden"
             color: style.muted
             font.pixelSize: 12
         }

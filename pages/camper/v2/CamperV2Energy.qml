@@ -49,7 +49,7 @@ Item {
     }
 
     function channelAvailable(channel) {
-        return adapter.customConnected === true && Number(channel && channel.channel || 0) > 0;
+        return adapter.customCommandsAllowed === true && Number(channel && channel.channel || 0) > 0;
     }
 
     function solarTotal() {
@@ -242,7 +242,7 @@ Item {
             height: 274
             dayMode: root.dayMode
             active: root.inverter.on === true
-            available: root.adapter.customConnected === true && (root.inverter.online === true || Object.keys(root.inverter).length > 0)
+            available: root.adapter.customCommandsAllowed === true && (root.inverter.online === true || Object.keys(root.inverter).length > 0)
             accent: style.purple
 
             Rectangle {
@@ -371,7 +371,7 @@ Item {
             height: 274
             dayMode: root.dayMode
             active: root.orion.online === true && root.orion.on === true
-            available: root.orion.online === true
+            available: root.adapter.customCommandsAllowed === true && root.orion.online === true
             accent: style.purple
 
             Rectangle {
@@ -513,7 +513,7 @@ Item {
             }
             MouseArea {
                 anchors.fill: parent
-                enabled: root.indevolt.online === true && root.indevolt.gridConnection && root.indevolt.gridConnection.available === true
+                enabled: root.adapter.customCommandsAllowed === true && root.indevolt.online === true && root.indevolt.gridConnection && root.indevolt.gridConnection.available === true
                 onClicked: root.adapter.command("indevoltGrid", "set", root.indevolt.gridConnection.on !== true, ({}))
             }
         }

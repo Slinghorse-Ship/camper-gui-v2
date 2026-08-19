@@ -40,14 +40,14 @@ Item {
     }
 
     function setLight(channel, enabled) {
-        if (channel > 0)
+        if (adapter.customCommandsAllowed === true && channel > 0)
             adapter.command("starpower", "set", enabled ? 1 : 0, {
                 channel: channel
             });
     }
 
     function dimLight(channel, value) {
-        if (channel > 0)
+        if (adapter.customCommandsAllowed === true && channel > 0)
             adapter.command("starpower", "dim", value, {
                 channel: channel
             });
@@ -91,7 +91,7 @@ Item {
         height: 58
         pageTitle: "LICHT"
         v2LogoSource: root.v2LogoSource
-        connected: root.adapter.customConnected === true
+        connected: root.adapter.customReadConnected === true
         onOpenVictronSettings: {
             if (visual.designV2)
                 root.pageRequested(13);

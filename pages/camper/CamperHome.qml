@@ -25,6 +25,7 @@ Item {
     readonly property var fan: climate.fan || ({})
     readonly property var power: snapshot.power || ({})
     readonly property var inverter: power.inverter || ({})
+    readonly property bool customReadConnected: adapter.customReadConnected === true
     readonly property bool customConnected: adapter.customConnected === true
 
     readonly property bool dayMode: false
@@ -100,7 +101,7 @@ Item {
         pageTitle: "HOME"
         logoSource: root.logoSource
         v2LogoSource: root.v2LogoSource
-        connected: root.customConnected
+        connected: root.customReadConnected
         onOpenVictronSettings: {
             if (visual.designV2)
                 root.pageRequested(13);
@@ -154,7 +155,7 @@ Item {
             caption: "FRISCHWASSER"
             value: root.fmt(root.fresh.level, 0, " %")
             detail: root.fmt(root.fresh.remainingLitres, 0, " LITER")
-            active: root.customConnected && Number(root.fresh.level || 0) > 0
+            active: root.customReadConnected && Number(root.fresh.level || 0) > 0
             accentColor: root.blue
             onClicked: root.pageRequested(11)
         }
@@ -168,7 +169,7 @@ Item {
             caption: "INNENRAUM"
             value: root.fmt(root.climate.roomTemperature, 1, " °C")
             detail: "INNENTEMPERATUR"
-            active: root.customConnected && isFinite(Number(root.climate.roomTemperature))
+            active: root.customReadConnected && isFinite(Number(root.climate.roomTemperature))
             accentColor: root.blue
             onClicked: root.pageRequested(10)
         }
@@ -204,7 +205,7 @@ Item {
             Text {
                 x: 72
                 y: 38
-                text: root.customConnected ? root.fmt(root.heater.setpoint, 0, " °C SOLL") + "  |  " + (root.heater.status || "keine Daten") : "NICHT VERBUNDEN"
+                text: root.customReadConnected ? root.fmt(root.heater.setpoint, 0, " °C SOLL") + "  |  " + (root.heater.status || "keine Daten") : "NICHT VERBUNDEN"
                 color: root.muted
                 font.pixelSize: 10
             }
@@ -307,7 +308,7 @@ Item {
             Text {
                 x: 72
                 y: 38
-                text: root.customConnected ? (root.water.pump && root.water.pump.on === true ? "EINGESCHALTET" : "AUSGESCHALTET") : "NICHT VERBUNDEN"
+                text: root.customReadConnected ? (root.water.pump && root.water.pump.on === true ? "EINGESCHALTET" : "AUSGESCHALTET") : "NICHT VERBUNDEN"
                 color: root.muted
                 font.pixelSize: 10
             }
@@ -436,7 +437,7 @@ Item {
                     }
                     MouseArea {
                         anchors.fill: parent
-                        enabled: modelData.available === true
+                        enabled: root.customConnected && modelData.available === true
                         onClicked: root.adapter.activateQuick(modelData)
                     }
                 }

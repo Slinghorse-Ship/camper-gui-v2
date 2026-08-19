@@ -53,7 +53,7 @@ Item {
     }
 
     function changeQuickAccess(index, direction) {
-        if (quickOptions.length === 0) {
+        if (adapter.customCommandsAllowed !== true || quickOptions.length === 0) {
             return;
         }
         const choices = [];
@@ -203,6 +203,7 @@ Item {
                 height: 62
                 label: "−"
                 fontSize: 20
+                enabled: root.adapter.customCommandsAllowed === true
                 onClicked: root.changeQuickAccess(index, -1)
             }
             CamperTouchButton {
@@ -212,6 +213,7 @@ Item {
                 height: 62
                 label: "+"
                 fontSize: 20
+                enabled: root.adapter.customCommandsAllowed === true
                 onClicked: root.changeQuickAccess(index, 1)
             }
         }
@@ -221,8 +223,10 @@ Item {
         x: 18
         y: 374
         width: 764
-        text: adapter.customConnected ? "ÄNDERUNGEN WERDEN SOFORT AUF CERBO, SYNC UND NODE-RED GESPEICHERT" : "CAMPER-API NICHT VERBUNDEN"
-        color: adapter.customConnected ? root.muted : visual.red
+        text: !adapter.customReadConnected ? "CAMPER-API NICHT VERBUNDEN"
+                : adapter.customCommandsAllowed ? "ÄNDERUNGEN WERDEN SOFORT AUF CERBO, SYNC UND NODE-RED GESPEICHERT"
+                : "VRM NUR LESEN · ÄNDERUNGEN GESPERRT"
+        color: adapter.customCommandsAllowed ? root.muted : visual.red
         font.pixelSize: 9
         font.bold: true
     }

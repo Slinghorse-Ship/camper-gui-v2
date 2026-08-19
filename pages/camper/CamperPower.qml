@@ -75,7 +75,7 @@ Item {
         height: 58
         pageTitle: "12 / 230 V"
         v2LogoSource: root.v2LogoSource
-        connected: root.adapter.customConnected === true
+        connected: root.adapter.customReadConnected === true
         onOpenVictronSettings: {
             if (visual.designV2)
                 root.pageRequested(13);
@@ -201,7 +201,7 @@ Item {
         Text {
             visible: root.visibleChannels.length === 0
             anchors.centerIn: parent
-            text: root.adapter.customConnected === true ? "KEINE 12-V-KANÄLE ERKANNT" : "CAMPER-BACKEND NICHT VERBUNDEN"
+            text: root.adapter.customReadConnected === true ? "KEINE 12-V-KANÄLE ERKANNT" : "CAMPER-BACKEND NICHT VERBUNDEN"
             color: visual.muted
             font.pixelSize: 15
             font.bold: true

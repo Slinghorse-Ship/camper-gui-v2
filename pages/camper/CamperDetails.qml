@@ -52,7 +52,7 @@ Item {
         height: 56
         pageTitle: root.pageTitle
         v2LogoSource: root.v2LogoSource
-        connected: root.adapter.customConnected === true
+        connected: root.adapter.customReadConnected === true
         onOpenVictronSettings: {
             if (visual.designV2)
                 root.pageRequested(13);
@@ -92,9 +92,16 @@ Item {
         solar: root.energy.solar || ({})
         indevolt: root.energy.indevolt || ({})
         orion: root.energy.orion || ({})
+        controlsEnabled: root.adapter.customCommandsAllowed === true
         onBackRequested: root.backRequested()
-        onOrionCommandRequested: enabledState => root.adapter.command("orion", "set", enabledState, ({}))
-        onIndevoltGridCommandRequested: enabledState => root.adapter.command("indevoltGrid", "set", enabledState, ({}))
+        onOrionCommandRequested: enabledState => {
+            if (root.adapter.customCommandsAllowed)
+                root.adapter.command("orion", "set", enabledState, ({}));
+        }
+        onIndevoltGridCommandRequested: enabledState => {
+            if (root.adapter.customCommandsAllowed)
+                root.adapter.command("indevoltGrid", "set", enabledState, ({}));
+        }
     }
 
     CamperBatteryDetails {
@@ -124,8 +131,12 @@ Item {
             yScale: 366 / 424
         }
         fan: root.climate.fan || ({})
+        controlsEnabled: root.adapter.customCommandsAllowed === true
         onBackRequested: root.backRequested()
-        onCommandRequested: (action, value) => root.adapter.command("maxxfan", action, value, ({}))
+        onCommandRequested: (action, value) => {
+            if (root.adapter.customCommandsAllowed)
+                root.adapter.command("maxxfan", action, value, ({}));
+        }
     }
 
     CamperTemperatureDetails {
@@ -142,16 +153,20 @@ Item {
         climate: root.climate
         heater: root.climate.heater || ({})
         temperatureSensors: root.climate.temperatureSensors || []
+        controlsEnabled: root.adapter.customCommandsAllowed === true
         onBackRequested: root.backRequested()
-        onVentilationPatchRequested: patch => root.adapter.command("settings", "patch", null, {
-                patch: patch
-            })
-        onClimateAutomationPatchRequested: patch => root.adapter.command("settings", "patch", null, {
-                patch: patch
-            })
-        onTemperatureSensorPatchRequested: patch => root.adapter.command("settings", "patch", null, {
-                patch: patch
-            })
+        onVentilationPatchRequested: patch => {
+            if (root.adapter.customCommandsAllowed)
+                root.adapter.command("settings", "patch", null, { patch: patch });
+        }
+        onClimateAutomationPatchRequested: patch => {
+            if (root.adapter.customCommandsAllowed)
+                root.adapter.command("settings", "patch", null, { patch: patch });
+        }
+        onTemperatureSensorPatchRequested: patch => {
+            if (root.adapter.customCommandsAllowed)
+                root.adapter.command("settings", "patch", null, { patch: patch });
+        }
     }
 
     CamperWaterDetails {

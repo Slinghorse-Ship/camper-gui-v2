@@ -23,7 +23,7 @@ Item {
 
     readonly property bool levelAvailable: valid(fresh.level)
     readonly property real levelValue: levelAvailable ? Math.max(0, Math.min(100, Number(fresh.level))) : 0
-    readonly property bool pumpAvailable: adapter.customConnected === true && pump.online === true
+    readonly property bool pumpAvailable: adapter.customCommandsAllowed === true && pump.online === true
 
     CamperV2Card {
         x: 12

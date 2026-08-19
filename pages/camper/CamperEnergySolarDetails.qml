@@ -9,6 +9,7 @@ Item {
     property var indevolt: ({})
     property var orion: ({})
     property var chargers: solar.chargers || []
+    property bool controlsEnabled: true
     signal backRequested
     signal orionCommandRequested(bool enabledState)
     signal indevoltGridCommandRequested(bool enabledState)
@@ -321,7 +322,7 @@ Item {
             height: 44
             label: view.orion.on ? "AUS" : "EIN"
             active: view.orion.on === true
-            enabled: view.orion.online === true
+            enabled: view.controlsEnabled && view.orion.online === true
             onClicked: view.orionCommandRequested(!view.orion.on)
         }
         Text {
@@ -357,6 +358,7 @@ Item {
             height: 36
             label: view.indevolt.gridConnection && view.indevolt.gridConnection.on ? "TRENNEN" : "FREIGEBEN"
             active: view.indevolt.gridConnection && view.indevolt.gridConnection.on === true
+            enabled: view.controlsEnabled
             onClicked: view.indevoltGridCommandRequested(!(view.indevolt.gridConnection && view.indevolt.gridConnection.on))
         }
         Text {

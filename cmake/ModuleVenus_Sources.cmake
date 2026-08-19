@@ -339,6 +339,8 @@ set (VictronVenusOS_QML_MODULE_SOURCES
     data/DataManager.qml
     data/camper/CamperBackendAdapter.qml
     data/camper/CamperNodeRedAdapter.qml
+    data/camper/CamperNodeRedHttpAdapter.qml
+    data/camper/CamperNodeRedMqttAdapter.qml
     data/camper/CamperVictronAdapter.qml
     data/DcInputs.qml
     data/EnvironmentInputs.qml

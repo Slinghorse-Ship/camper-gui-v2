@@ -38,7 +38,7 @@ Item {
         height: 58
         pageTitle: "SYSTEM"
         v2LogoSource: root.v2LogoSource
-        connected: root.adapter.customConnected === true
+        connected: root.adapter.customReadConnected === true
         onOpenVictronSettings: root.openVictronSettings()
         onCloseRequested: root.closeRequested()
     }

@@ -42,7 +42,7 @@ Rectangle {
         y: 0
         width: 800
         pageTitle: root.pageTitle
-        connected: root.adapter.customConnected === true
+        connected: root.adapter.customReadConnected === true
         dayMode: root.dayMode
         darkLogoSource: root.darkLogoSource
         lightLogoSource: root.lightLogoSource

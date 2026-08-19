@@ -212,7 +212,7 @@ Item {
             y: 256
             width: 228
             height: 58
-            enabled: view.adapter.customConnected === true && view.pump.online === true
+            enabled: view.adapter.customCommandsAllowed === true && view.pump.online === true
             label: view.pump.on === true ? "PUMPE AUSSCHALTEN" : "PUMPE EINSCHALTEN"
             active: view.pump.on === true
             onClicked: view.adapter.command("waterPump", "set", view.pump.on !== true, ({}))

@@ -10,6 +10,7 @@ Item {
     property var automation: climate.automation || ({})
     property var temperatureSensors: climate.temperatureSensors || ({})
     property int controlTab: 0
+    property bool controlsEnabled: true
     signal backRequested
     signal ventilationPatchRequested(var patch)
     signal climateAutomationPatchRequested(var patch)
@@ -34,6 +35,8 @@ Item {
         return valid(value) ? Number(value).toFixed(1) + " °C" : "–";
     }
     function ventilationPatch(enabled, onTemperature, hysteresis, manualOn) {
+        if (!controlsEnabled)
+            return;
         ventilationPatchRequested({
             ventilation: {
                 enabled: enabled,
@@ -44,6 +47,8 @@ Item {
         });
     }
     function climatePatch(enabled, mode, target, hysteresis, fanSpeed) {
+        if (!controlsEnabled)
+            return;
         climateAutomationPatchRequested({
             climateAutomation: {
                 enabled: enabled,
@@ -318,6 +323,8 @@ Item {
             width: 274
             height: 342
             visible: view.controlTab === 0
+            enabled: view.controlsEnabled
+            opacity: enabled ? 1 : .55
             Text {
                 x: 15
                 y: 53
@@ -481,6 +488,8 @@ Item {
             width: 274
             height: 342
             visible: view.controlTab === 1
+            enabled: view.controlsEnabled
+            opacity: enabled ? 1 : .55
             Text {
                 x: 15
                 y: 53
@@ -655,6 +664,8 @@ Item {
             width: 274
             height: 342
             visible: view.controlTab === 2
+            enabled: view.controlsEnabled
+            opacity: enabled ? 1 : .55
             Text {
                 x: 15
                 y: 53

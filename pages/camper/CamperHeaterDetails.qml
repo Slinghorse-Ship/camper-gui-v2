@@ -5,6 +5,7 @@ Item {
     id: view
 
     required property var adapter
+    readonly property bool controlsEnabled: adapter.customCommandsAllowed === true
     property bool dayMode: false
     property var climate: ({})
     readonly property var heater: climate.heater || ({})
@@ -33,6 +34,8 @@ Item {
     }
 
     function heaterSetting(key, value) {
+        if (!controlsEnabled)
+            return;
         adapter.command("heater", "setting", value, {
             key: key
         });
@@ -120,7 +123,7 @@ Item {
             height: 36
             label: heater.cooling ? "NACHLAUF" : (heater.on ? "STOPPEN" : "STARTEN")
             active: heater.on === true
-            enabled: heater.cooling !== true && (heater.on === true || !heater.startBlocked)
+            enabled: view.controlsEnabled && heater.cooling !== true && (heater.on === true || !heater.startBlocked)
             accentColor: "#f39b58"
             onClicked: view.adapter.command("heater", heater.on ? "stop" : "start", null)
         }
@@ -186,6 +189,7 @@ Item {
             height: 34
             visible: heater.mode !== "ventilation"
             label: "−"
+            enabled: view.controlsEnabled
             onClicked: heater.mode === "power" ? view.heaterSetting("power", Math.max(1, Number(heater.powerLevel || 5) - 1)) : view.adapter.command("heater", "setpoint", Math.max(5, Number(heater.setpoint || 20) - 1))
         }
         Text {
@@ -205,6 +209,7 @@ Item {
             height: 34
             visible: heater.mode !== "ventilation"
             label: "+"
+            enabled: view.controlsEnabled
             onClicked: heater.mode === "power" ? view.heaterSetting("power", Math.min(10, Number(heater.powerLevel || 5) + 1)) : view.adapter.command("heater", "setpoint", Math.min(30, Number(heater.setpoint || 20) + 1))
         }
         Text {
@@ -522,7 +527,7 @@ Item {
             width: 366
             height: 38
             label: heater.maintenanceActive ? "WARTUNGSLAUF LÄUFT" : "20-MIN-WARTUNGSLAUF STARTEN"
-            enabled: !heater.on && !heater.cooling && !heater.maintenanceActive && !heater.startBlocked
+            enabled: view.controlsEnabled && !heater.on && !heater.cooling && !heater.maintenanceActive && !heater.startBlocked
             active: heater.maintenanceActive === true
             accentColor: "#f5c451"
             onClicked: view.adapter.command("heater", "maintenance", null)
@@ -541,6 +546,7 @@ Item {
             width: 149
             height: 36
             label: "ALS ERLEDIGT"
+            enabled: view.controlsEnabled
             onClicked: view.adapter.command("heater", "annualDone", null)
         }
         Text {
