@@ -19,6 +19,14 @@ moving "latest candidate" entry.
 
 ## Phase 2 completion: build and boot gate
 
+### Workstation setup status (2026-08-19)
+
+- `wsl --install` completed successfully through Windows UAC.
+- Ubuntu 24.04 was explicitly requested with `wsl --install Ubuntu-24.04`.
+- Windows reports that the changes become active only after a system restart.
+- No GX SDK, Qt WASM SDK or Emscripten package has been installed yet.
+- No build or deployment to the Cerbo has been attempted.
+
 1. Enable WSL and install Ubuntu 24.04 on the Windows development host. This is an
    administrator-level Windows change and may require a reboot.
 2. Inside Ubuntu, run `scripts/build-gx-install-requirements.sh`. It installs the
