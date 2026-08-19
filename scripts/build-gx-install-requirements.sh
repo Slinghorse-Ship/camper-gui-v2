@@ -8,6 +8,10 @@
 # aarch64: Raspberry Pi 5
 DEVICE_TYPE="arm"
 
+# CamperControl compatibility pin. The target Cerbo runs Venus OS v3.80~39 on
+# armv7l, so never select a newer candidate SDK implicitly.
+VENUS_SDK_VERSION="v3.80~39"
+
 
 # Check if the script is run on Ubuntu 22.x or later
 UBUNTU_VERSION=$(lsb_release -rs | cut -d. -f1)
@@ -61,17 +65,24 @@ then
     echo
 fi
 
-# Fetch latest SDK version
+# Fetch the SDK matching the target Venus OS image
 URL="https://updates.victronenergy.com/feeds/venus/candidate/sdk/"
 
-# Get the HTML content
-html_content=$(curl -s ${URL})
-
-# Extract the filename ending with .sh from the HTML content
-filename=$(echo "${html_content}" | grep "${DEVICE_TYPE}" | grep -oP '(?<=href=")[^"]+\.sh' | head -n 1)
+case "${DEVICE_TYPE}" in
+    arm)
+        filename="venus-scarthgap-x86_64-arm-cortexa8hf-neon-toolchain-${VENUS_SDK_VERSION}.sh"
+        ;;
+    aarch64)
+        filename="venus-scarthgap-x86_64-aarch64-cortexa53-toolchain-${VENUS_SDK_VERSION}.sh"
+        ;;
+    *)
+        echo "ERROR: Unsupported DEVICE_TYPE: ${DEVICE_TYPE}"
+        exit 1
+        ;;
+esac
 
 # Construct the download URL
-download_url="https://updates.victronenergy.com/feeds/venus/candidate/sdk/${filename}"
+download_url="${URL}${filename}"
 
 # Change to the temporary directory
 cd "/tmp"
@@ -79,7 +90,12 @@ cd "/tmp"
 echo "Downloading ${download_url}"
 
 # Fetch the SDK file
-curl -O "${download_url}"
+curl --fail --location --remote-name "${download_url}"
+
+if [ $? -ne 0 ]; then
+    echo "ERROR: Could not download the pinned Venus OS SDK ${VENUS_SDK_VERSION}."
+    exit 1
+fi
 
 # Make the file executable
 chmod u+x "${filename}"
