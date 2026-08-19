@@ -10,6 +10,7 @@ QtObject {
 
     readonly property int version1: 1
     readonly property int version2: 2
+    readonly property url settingsLocation: Qt.platform.os === "linux" ? "file:///data/campercontrol-gui-v2.ini" : ""
     property alias designVersion: storage.designVersion
 
     function setDesignVersion(version) {
@@ -31,6 +32,7 @@ QtObject {
     property Settings _storage: Settings {
         id: storage
         category: "CamperControl"
+        location: root.settingsLocation
         property int designVersion: 2
     }
 }

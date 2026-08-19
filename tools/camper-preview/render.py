@@ -26,6 +26,9 @@ def main() -> int:
 	print(f"Loading {qml_path}", flush=True)
 
 	app = QGuiApplication(sys.argv[:1])
+	app.setOrganizationName("Victron Energy")
+	app.setOrganizationDomain("victronenergy.com")
+	app.setApplicationName("Venus")
 	print("QGuiApplication ready", flush=True)
 	engine = QQmlApplicationEngine()
 	engine.load(QUrl.fromLocalFile(str(qml_path)))

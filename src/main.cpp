@@ -507,6 +507,8 @@ int main(int argc, char *argv[])
 	QGuiApplication app(argc, argv);
 	QGuiApplication::setApplicationName("Venus");
 	QGuiApplication::setApplicationVersion("2.0");
+	QGuiApplication::setOrganizationName("Victron Energy");
+	QGuiApplication::setOrganizationDomain("victronenergy.com");
 
 	QGuiApplication::styleHints()->setWheelScrollLines(5);
 

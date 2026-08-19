@@ -11,7 +11,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 os.environ.setdefault("QSG_RHI_BACKEND", "software")
 os.environ.setdefault("QT_QPA_FONTDIR", str(Path(__file__).resolve().parents[2] / "fonts"))
 
-from PySide6.QtCore import QPoint, Qt, QUrl
+from PySide6.QtCore import QPoint, Qt, QUrl, qInstallMessageHandler
 from PySide6.QtGui import QGuiApplication, QImage
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtTest import QTest
@@ -58,7 +58,16 @@ def expect_frame_corners(window, expected_top: str, expected_bottom: str) -> Non
 
 
 def main() -> int:
+	qt_messages = []
+
+	def qt_message_handler(_message_type, _context, message):
+		qt_messages.append(message)
+
+	qInstallMessageHandler(qt_message_handler)
 	app = QGuiApplication(sys.argv[:1])
+	app.setOrganizationName("Victron Energy")
+	app.setOrganizationDomain("victronenergy.com")
+	app.setApplicationName("Venus")
 	engine = QQmlApplicationEngine()
 	qml_path = Path(__file__).with_name("Main.qml").resolve()
 	engine.load(QUrl.fromLocalFile(str(qml_path)))
@@ -178,6 +187,14 @@ def main() -> int:
 	click(window, 300, 165)
 	expect(window, "previewDesignVersion", 1)
 	expect(window, "currentCamperPage", 0)
+
+	settings_errors = [
+		message
+		for message in qt_messages
+		if "Failed to initialize QSettings" in message or "Status code is: 1" in message
+	]
+	if settings_errors:
+		raise AssertionError(f"QSettings initialization failed: {settings_errors}")
 
 	print("PASS touch targets: unchanged V1, full-bleed V2 day/night, Victron return, six-page nav, disabled unavailable source, adapter commands, local design selector and exact RGBA Transit assets")
 	return 0
