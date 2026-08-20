@@ -37,6 +37,12 @@ Item {
         }
     }
 
+    function setFavoriteIds(ids) {
+        if (transport.item) {
+            transport.item.setFavoriteIds(ids);
+        }
+    }
+
     Loader {
         id: transport
         sourceComponent: bridgeTransport

@@ -63,9 +63,9 @@ Canvas {
         return height * value / 360;
     }
 
-    function fixtureLine(ctx, x1, x2, y, sourceWidth, red, green, blue, strength) {
+    function fixtureLine(ctx, x1, y1, x2, y2, sourceWidth, red, green, blue, strength) {
         const centerX = sourceX((x1 + x2) / 2);
-        const centerY = sourceY(y);
+        const centerY = sourceY((y1 + y2) / 2);
         glow(ctx, centerX, centerY, sourceX(18), red, green, blue, strength * .46);
         ctx.save();
         ctx.lineCap = "round";
@@ -74,8 +74,8 @@ Canvas {
         ctx.shadowColor = Qt.rgba(red, green, blue, .92);
         ctx.shadowBlur = sourceX(8);
         ctx.beginPath();
-        ctx.moveTo(sourceX(x1), centerY);
-        ctx.lineTo(sourceX(x2), centerY);
+        ctx.moveTo(sourceX(x1), sourceY(y1));
+        ctx.lineTo(sourceX(x2), sourceY(y2));
         ctx.stroke();
         ctx.restore();
     }
@@ -98,25 +98,26 @@ Canvas {
         ctx.clearRect(0, 0, width, height);
 
         if (insideOn)
-            glow(ctx, sourceX(rightView ? 165 : 420), sourceY(170), sourceX(90), 1, .75, .36, .20 + insideLevel / 180);
+            glow(ctx, sourceX(rightView ? 223 : 402), sourceY(164), sourceX(82), 1, .75, .36, .20 + insideLevel / 180);
 
         if (sideOn) {
             const strength = .52 + sideLevel / 220;
             if (rightView) {
-                fixtureLine(ctx, 65, 73, 45, 5, .92, .98, 1, strength);
-                fixtureLine(ctx, 154, 162, 41, 5, .92, .98, 1, strength);
+                fixtureLine(ctx, 63, 44.5, 79, 44.5, 7, .92, .98, 1, strength);
+                fixtureLine(ctx, 147, 43.5, 164, 43.5, 7, .92, .98, 1, strength);
             } else {
-                fixtureLine(ctx, 374, 383, 33, 5, .92, .98, 1, strength);
-                fixtureLine(ctx, 458, 466, 36, 5, .92, .98, 1, strength);
+                fixtureLine(ctx, 368, 37.5, 384, 37.5, 7, .92, .98, 1, strength);
+                fixtureLine(ctx, 454, 38.5, 471, 38.5, 7, .92, .98, 1, strength);
             }
         }
 
         if (rearOn)
-            fixtureSquare(ctx, rightView ? 52 : 437, 12, 7, .92, .98, 1, .56 + rearLevel / 210);
+            fixtureSquare(ctx, rightView ? 50 : 439, 12, 14, .92, .98, 1, .56 + rearLevel / 210);
 
-        const frontX1 = sourceX(rightView ? 260 : 166);
-        const frontX2 = sourceX(rightView ? 407 : 339);
-        const frontY = sourceY(rightView ? 39 : 50);
+        const frontX1 = sourceX(rightView ? 263 : 168);
+        const frontY1 = sourceY(rightView ? 60 : 49);
+        const frontX2 = sourceX(rightView ? 403 : 317);
+        const frontY2 = sourceY(rightView ? 65 : 49);
         if (highBeamOn) {
             ctx.save();
             ctx.lineCap = "round";
@@ -125,8 +126,8 @@ Canvas {
             ctx.shadowColor = "#49aef4";
             ctx.shadowBlur = sourceX(24);
             ctx.beginPath();
-            ctx.moveTo(frontX1, frontY);
-            ctx.lineTo(frontX2, frontY);
+            ctx.moveTo(frontX1, frontY1);
+            ctx.lineTo(frontX2, frontY2);
             ctx.stroke();
             ctx.restore();
         }
@@ -138,8 +139,8 @@ Canvas {
             ctx.shadowColor = frontAmber ? "#ff8f12" : "#ffffff";
             ctx.shadowBlur = sourceX(8 + frontLevel / 10);
             ctx.beginPath();
-            ctx.moveTo(frontX1, frontY + sourceY(2));
-            ctx.lineTo(frontX2, frontY + sourceY(2));
+            ctx.moveTo(frontX1, frontY1 + sourceY(2));
+            ctx.lineTo(frontX2, frontY2 + sourceY(2));
             ctx.stroke();
             ctx.restore();
         }

@@ -10,17 +10,20 @@ import QtQuick
 import Victron.VenusOS
 
 QtObject {
-	id: root
+    id: root
 
-	readonly property bool connected: Global.backendReady
-	readonly property real batterySoc: Global.system && Global.system.battery
-			? Global.system.battery.stateOfCharge : NaN
-	readonly property real batteryVoltage: Global.system && Global.system.battery
-			? Global.system.battery.voltage : NaN
-	readonly property real solarPower: Global.system && Global.system.solar
-			? Global.system.solar.power : NaN
+    readonly property bool connected: Global.backendReady
+    readonly property real batterySoc: Global.system && Global.system.battery ? Global.system.battery.stateOfCharge : NaN
+    readonly property real batteryVoltage: Global.system && Global.system.battery ? Global.system.battery.voltage : NaN
+    readonly property real batteryPower: Global.system && Global.system.battery ? Global.system.battery.power : NaN
+    readonly property real batteryTimeToGoSeconds: Global.system && Global.system.battery ? Global.system.battery.timeToGo : NaN
+    readonly property real dcPower: Global.system && Global.system.dc ? Global.system.dc.power : NaN
+    readonly property real solarPower: Global.system && Global.system.solar ? Global.system.solar.power : NaN
 
-	readonly property bool hasBatterySoc: !isNaN(batterySoc)
-	readonly property bool hasBatteryVoltage: !isNaN(batteryVoltage)
-	readonly property bool hasSolarPower: !isNaN(solarPower)
+    readonly property bool hasBatterySoc: !isNaN(batterySoc)
+    readonly property bool hasBatteryVoltage: !isNaN(batteryVoltage)
+    readonly property bool hasBatteryPower: !isNaN(batteryPower)
+    readonly property bool hasBatteryTimeToGoSeconds: !isNaN(batteryTimeToGoSeconds)
+    readonly property bool hasDcPower: !isNaN(dcPower)
+    readonly property bool hasSolarPower: !isNaN(solarPower)
 }

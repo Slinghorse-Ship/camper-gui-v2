@@ -13,6 +13,7 @@ Item {
     readonly property var hourly: weather.hourly && Array.isArray(weather.hourly) ? weather.hourly.slice(0, 48) : []
     readonly property var daily: weather.daily && Array.isArray(weather.daily) ? weather.daily.slice(0, 6) : []
     readonly property var currentWeather: weather.current || currentFromHourly()
+    readonly property var tides: weather.tides && typeof weather.tides === "object" ? weather.tides : ({})
 
     CamperV2Style {
         id: style
@@ -59,32 +60,67 @@ Item {
             return String(item.condition);
         const rawCode = value(item, ["ww"]);
         if (valid(rawCode)) {
-            const code = Number(rawCode);
-            if (code === 0)
-                return "Klar";
-            if (code <= 3)
-                return "Bewölkt";
-            if (code === 45 || code === 48)
-                return "Nebel";
-            if (code >= 95)
-                return "Gewitter";
-            if (code >= 71 && code <= 86)
-                return "Schnee";
-            if (code >= 51)
-                return "Regen";
+            const code = Math.round(Number(rawCode));
+            const descriptions = {
+                0: "Klar",
+                1: "Auflockernd",
+                2: "Bewölkt",
+                3: "Zunehmend bewölkt",
+                45: "Nebel",
+                49: "Eisnebel",
+                51: "Leichter Sprühregen",
+                53: "Sprühregen",
+                55: "Starker Sprühregen",
+                56: "Leicht gefrierender Sprühregen",
+                57: "Gefrierender Sprühregen",
+                61: "Leichter Regen",
+                63: "Regen",
+                65: "Starker Regen",
+                66: "Leicht gefrierender Regen",
+                67: "Gefrierender Regen",
+                68: "Leichter Schneeregen",
+                69: "Schneeregen",
+                71: "Leichter Schneefall",
+                73: "Schneefall",
+                75: "Starker Schneefall",
+                80: "Leichter Regenschauer",
+                81: "Regenschauer",
+                82: "Heftiger Regenschauer",
+                83: "Leichter Schneeregenschauer",
+                84: "Schneeregenschauer",
+                85: "Leichter Schneeschauer",
+                86: "Schneeschauer",
+                95: "Gewitter mit Regen oder Schnee",
+                96: "Hagelgewitter",
+                97: "Starkes Gewitter",
+                98: "Gewitter",
+                99: "Starkes Hagelgewitter"
+            };
+            if (descriptions[code])
+                return descriptions[code];
         }
         const icon = String(value(item, ["icon"]) || "").toLowerCase();
+        if (icon.indexOf("hail") >= 0)
+            return "Hagelgewitter";
         if (icon.indexOf("thunder") >= 0 || icon.indexOf("storm") >= 0)
             return "Gewitter";
+        if (icon.indexOf("freezing") >= 0)
+            return "Gefrierender Niederschlag";
+        if (icon.indexOf("sleet") >= 0 || icon.indexOf("mixed") >= 0)
+            return "Schneeregen";
         if (icon.indexOf("snow") >= 0)
             return "Schnee";
-        if (icon.indexOf("rain") >= 0 || icon.indexOf("shower") >= 0)
+        if (icon.indexOf("drizzle") >= 0)
+            return "Sprühregen";
+        if (icon.indexOf("shower") >= 0)
+            return "Regenschauer";
+        if (icon.indexOf("rain") >= 0)
             return "Regen";
         if (icon.indexOf("clear") >= 0 || icon.indexOf("sun") >= 0)
             return "Klar";
-        if (icon.length > 0)
+        if (icon.indexOf("cloud") >= 0 || icon.indexOf("overcast") >= 0)
             return "Bewölkt";
-        return "Wetter";
+        return "Wetterlage";
     }
 
     function dayLabel(item) {
@@ -107,6 +143,26 @@ Item {
         if (isNaN(rise.getTime()) || isNaN(set.getTime()))
             return "";
         return "Sonne ↑" + Qt.formatTime(rise, "hh:mm") + " ↓" + Qt.formatTime(set, "hh:mm");
+    }
+
+    function tideEvent(label, event) {
+        if (!event || !event.t)
+            return "";
+        const date = new Date(event.t);
+        if (isNaN(date.getTime()))
+            return "";
+        const height = valid(event.heightM) ? " " + Number(event.heightM).toFixed(2).replace(".", ",") + " m" : "";
+        return label + " " + Qt.formatTime(date, "hh:mm") + height;
+    }
+
+    function tideLabel() {
+        const high = tideEvent("HW", tides.nextHigh);
+        const low = tideEvent("NW", tides.nextLow);
+        if (!high && !low)
+            return "";
+        const station = tides.station && tides.station.name ? " · " + String(tides.station.name) : "";
+        const stale = tides.stale === true ? " · veraltet" : "";
+        return "BSH Tide " + [high, low].filter(value => value.length > 0).join(" · ") + station + stale;
     }
 
     CamperV2Card {
@@ -204,9 +260,9 @@ Item {
             font.weight: Font.DemiBold
         }
         Row {
-            x: parent.width - 153
+            x: parent.width - width - 13
             y: 12
-            spacing: 12
+            spacing: 8
             Rectangle {
                 width: 19
                 height: 3
@@ -232,13 +288,30 @@ Item {
                 color: style.muted
                 font.pixelSize: 8
             }
+            Rectangle {
+                visible: weatherChart.hasTideCurve
+                width: 19
+                height: 2
+                radius: 1
+                color: weatherChart.tideColor
+                anchors.verticalCenter: parent.verticalCenter
+            }
+            Text {
+                objectName: "camperV2WeatherTideLegend"
+                visible: weatherChart.hasTideCurve
+                text: "Tide"
+                color: style.muted
+                font.pixelSize: 8
+            }
         }
         CamperV2WeatherChart {
+            id: weatherChart
             x: 8
             y: 32
             width: parent.width - 16
             height: 135
             hourlyData: root.hourly
+            tideData: root.tides.curve && Array.isArray(root.tides.curve) ? root.tides.curve : []
             dayMode: root.dayMode
         }
     }
@@ -341,6 +414,19 @@ Item {
     }
 
     Text {
+        objectName: "camperV2WeatherSunTide"
+        x: 2
+        y: root.height - 39
+        width: root.width - 4
+        height: 17
+        visible: root.sunLabel().length > 0 || root.tideLabel().length > 0
+        text: [root.sunLabel(), root.tideLabel()].filter(value => value.length > 0).join("   ·   ")
+        color: root.tides.stale === true ? style.orange : style.muted
+        elide: Text.ElideRight
+        font.pixelSize: 9
+    }
+
+    Text {
         x: 2
         y: root.height - 19
         width: root.width - 4
@@ -349,9 +435,8 @@ Item {
                 return root.adapter.weatherErrorText || "Wetterdaten noch nicht verfügbar";
             const station = root.weather.station && root.weather.station.name ? " · " + root.weather.station.name : "";
             const updated = root.updateLabel() ? " · " + root.updateLabel() : "";
-            const sun = root.sunLabel() ? " · " + root.sunLabel() : "";
             const stale = root.weather.stale === true ? " · Daten veraltet" : "";
-            return "Quelle: Deutscher Wetterdienst" + station + updated + sun + stale;
+            return "Quelle: Deutscher Wetterdienst" + station + updated + stale;
         }
         color: root.adapter.weatherConnected === true && root.weather.stale !== true ? style.muted : style.orange
         elide: Text.ElideRight

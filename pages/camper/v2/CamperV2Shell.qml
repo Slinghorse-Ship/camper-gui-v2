@@ -18,6 +18,7 @@ Rectangle {
     signal closeRequested
 
     readonly property string pageTitle: ["Home", "Licht", "Klima", "Energie", "Wasser", "System"][Math.max(0, Math.min(5, currentPage))]
+    readonly property real contentX: Math.max(0, Math.round((width - 800) / 2))
 
     radius: 0
     clip: true
@@ -40,18 +41,22 @@ Rectangle {
     CamperV2Header {
         x: 0
         y: 0
-        width: 800
+        width: root.width
         pageTitle: root.pageTitle
         connected: root.adapter.customReadConnected === true
         dayMode: root.dayMode
         darkLogoSource: root.darkLogoSource
         lightLogoSource: root.lightLogoSource
+        favoritesOpen: panelHost.activePanel === panelHost.quickPanel && !panelHost.quickEditorRequested
+        weatherOpen: panelHost.activePanel === panelHost.weatherPanel
+        onFavoritesRequested: panelHost.openFavorites()
+        onWeatherRequested: panelHost.openWeather()
         onThemeRequested: root.dayMode = !root.dayMode
         onCloseRequested: root.closeRequested()
     }
 
     Item {
-        x: 0
+        x: root.contentX
         y: 50
         width: 800
         height: 342
@@ -143,8 +148,8 @@ Rectangle {
 
     CamperV2NavBar {
         x: 0
-        y: 400
-        width: 800
+        y: root.height - 80
+        width: root.width
         currentPage: root.currentPage
         dayMode: root.dayMode
         onPageRequested: page => root.currentPage = page

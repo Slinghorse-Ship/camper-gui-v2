@@ -19,7 +19,7 @@ Item {
     Rectangle {
         x: 10
         y: 0
-        width: 780
+        width: root.width - 20
         height: 64
         radius: 18
         color: style.panel
@@ -68,7 +68,7 @@ Item {
                     required property var modelData
                     readonly property bool selected: root.currentPage === modelData.page
 
-                    width: 126
+                    width: (parent.width - 15) / 6
                     height: 54
                     radius: 13
                     color: selected ? style.selectedBlue : (navArea.pressed ? style.pressed : "transparent")

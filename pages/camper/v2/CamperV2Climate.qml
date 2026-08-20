@@ -29,17 +29,30 @@ Item {
         return valid(value) ? Number(value).toFixed(digits) + suffix : "–";
     }
 
+    function controlMode() {
+        const mode = String(root.automation.controlMode || "");
+        return ["off", "manual", "auto"].indexOf(mode) >= 0 ? mode : (root.automation.enabled === true ? "auto" : "manual");
+    }
+
+    function setControlMode(mode) {
+        if (root.adapter.customCommandsAllowed !== true || ["off", "manual", "auto"].indexOf(mode) < 0)
+            return;
+        root.adapter.command("settings", "patch", null, {
+            patch: {
+                climateAutomation: {
+                    controlMode: mode
+                }
+            }
+        });
+    }
+
     function climatePatch(delta) {
         if (adapter.customCommandsAllowed !== true || !valid(automation.targetTemperature))
             return;
         adapter.command("settings", "patch", null, {
             patch: {
                 climateAutomation: {
-                    enabled: automation.enabled === true,
-                    mode: automation.mode || "auto",
-                    targetTemperature: Math.max(10, Math.min(30, Number(automation.targetTemperature) + delta)),
-                    hysteresis: valid(automation.hysteresis) ? Number(automation.hysteresis) : 1,
-                    fanSpeed: valid(automation.fanSpeed) ? Number(automation.fanSpeed) : 50
+                    targetTemperature: Math.max(10, Math.min(30, Number(automation.targetTemperature) + delta))
                 }
             }
         });
@@ -59,8 +72,8 @@ Item {
         width: 211
         height: 322
         dayMode: root.dayMode
-        active: root.automation.enabled === true
-        accent: style.orange
+        active: root.controlMode() !== "off"
+        accent: root.controlMode() === "auto" ? style.orange : style.blue
 
         Text {
             x: 14
@@ -69,6 +82,55 @@ Item {
             color: style.text
             font.pixelSize: 14
             font.weight: Font.DemiBold
+        }
+        Row {
+            x: 10
+            y: 158
+            spacing: 4
+
+            Repeater {
+                model: [
+                    {
+                        mode: "off",
+                        label: "Aus"
+                    },
+                    {
+                        mode: "manual",
+                        label: "Manuell"
+                    },
+                    {
+                        mode: "auto",
+                        label: "Automatik"
+                    }
+                ]
+
+                delegate: Rectangle {
+                    id: modeButton
+                    required property var modelData
+                    readonly property bool selected: root.controlMode() === modelData.mode
+
+                    width: 61
+                    height: 34
+                    radius: 10
+                    color: modeArea.pressed ? style.pressed : (selected ? (modelData.mode === "auto" ? "#382314" : style.selectedBlue) : style.inner)
+                    border.color: selected ? (modelData.mode === "auto" ? style.orange : style.blue) : style.border
+                    opacity: root.adapter.customCommandsAllowed === true ? 1 : .55
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: parent.modelData.label
+                        color: parent.selected ? (parent.modelData.mode === "auto" ? style.orange : style.blue) : style.muted
+                        font.pixelSize: 8
+                        font.weight: Font.DemiBold
+                    }
+                    MouseArea {
+                        id: modeArea
+                        anchors.fill: parent
+                        enabled: root.adapter.customCommandsAllowed === true
+                        onClicked: root.setControlMode(modeButton.modelData.mode)
+                    }
+                }
+            }
         }
         Text {
             x: 0
@@ -117,8 +179,8 @@ Item {
             height: 54
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            text: "Auto"
-            color: root.automation.enabled === true ? style.orange : style.text
+            text: "Soll"
+            color: style.muted
             font.pixelSize: 13
             font.weight: Font.DemiBold
         }
@@ -149,7 +211,7 @@ Item {
             width: 47
             height: 9
             radius: 5
-            color: root.automation.enabled === true ? style.orange : style.inner
+            color: root.controlMode() === "auto" ? style.orange : (root.controlMode() === "manual" ? style.blue : style.inner)
         }
     }
 

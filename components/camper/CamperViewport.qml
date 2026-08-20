@@ -6,26 +6,26 @@
 import QtQuick
 
 Item {
-	id: root
+    id: root
 
-	default property alias viewportData: logicalCanvas.data
-	readonly property real contentScale: Math.min(width / logicalWidth, height / logicalHeight)
-	property real logicalWidth: 800
-	property real logicalHeight: 480
+    default property alias viewportData: logicalCanvas.data
+    readonly property real contentScale: Math.min(width / logicalWidth, height / logicalHeight)
+    property real logicalWidth: 800
+    property real logicalHeight: 480
 
-	Rectangle {
-		anchors.fill: parent
-		color: "#03090d"
-	}
+    Rectangle {
+        anchors.fill: parent
+        color: "#03090d"
+    }
 
-	Item {
-		id: logicalCanvas
+    Item {
+        id: logicalCanvas
 
-		x: (root.width - width * scale) / 2
-		y: (root.height - height * scale) / 2
-		width: root.logicalWidth
-		height: root.logicalHeight
-		scale: root.contentScale
-		transformOrigin: Item.TopLeft
-	}
+        x: 0
+        y: 0
+        width: root.contentScale > 0 ? root.width / root.contentScale : root.logicalWidth
+        height: root.contentScale > 0 ? root.height / root.contentScale : root.logicalHeight
+        scale: root.contentScale
+        transformOrigin: Item.TopLeft
+    }
 }

@@ -13,12 +13,12 @@ WEATHER = ROOT / "data" / "camper" / "CamperWeatherAdapter.qml"
 
 
 class CamperVrmTransportContractTest(unittest.TestCase):
-    def test_gx_and_wasm_use_bridge_service_instance_zero_and_seven_fragments(self):
+    def test_gx_and_wasm_use_bridge_service_instance_zero_and_eight_fragments(self):
         source = MQTT.read_text(encoding="utf-8")
         self.assertIn('serviceUidFromName("com.victronenergy.campercontrol", 0)', source)
         self.assertIn("BackendConnection.vrmPortalMode === BackendConnection.Full", source)
         self.assertNotIn("XMLHttpRequest", source)
-        for section in ("Ui", "Energy", "Water", "Climate", "Lights", "Vehicle", "Power"):
+        for section in ("Ui", "Energy", "Water", "Climate", "Lights", "Vehicle", "Power", "Operations"):
             self.assertEqual(source.count(f'"/State/{section}"'), 1)
 
     def test_facade_uses_one_dbus_mqtt_transport_without_duplicate_http_poll(self):
@@ -56,7 +56,7 @@ class CamperVrmTransportContractTest(unittest.TestCase):
         command_pages = []
         for path in (ROOT / "pages" / "camper").rglob("*.qml"):
             text = path.read_text(encoding="utf-8")
-            if re.search(r"adapter\.(?:command|activateQuick|setQuickAccessIds)", text):
+            if re.search(r"adapter\.(?:command|activateQuick|setQuickAccessIds|setFavoriteIds)", text):
                 command_pages.append(path)
                 self.assertTrue(
                     "customCommandsAllowed" in text or "customConnected" in text,
@@ -79,9 +79,11 @@ class CamperVrmTransportContractTest(unittest.TestCase):
         energy = (ROOT / "pages" / "camper" / "v2" / "CamperV2Energy.qml").read_text(encoding="utf-8")
         home = (ROOT / "pages" / "camper" / "v2" / "CamperV2Home.qml").read_text(encoding="utf-8")
         quick = (ROOT / "pages" / "camper" / "v2" / "CamperV2QuickPanel.qml").read_text(encoding="utf-8")
+        favorites = (ROOT / "pages" / "camper" / "v2" / "CamperV2FavoritesPanel.qml").read_text(encoding="utf-8")
         self.assertIn("remoteProtected", energy)
         self.assertIn("remoteProtected", home)
         self.assertIn('Remote geschützt', quick)
+        self.assertIn('Remote geschützt', favorites)
 
 
 if __name__ == "__main__":

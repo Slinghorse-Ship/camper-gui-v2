@@ -21,30 +21,49 @@ Canvas {
         const raw = String(weatherCode === null || weatherCode === undefined ? "" : weatherCode).toLowerCase();
         const numeric = Number(raw);
         if (raw.length > 0 && isFinite(numeric)) {
-            if (numeric === 0)
+            const code = Math.round(numeric);
+            if (code === 0)
                 return "clear";
-            if (numeric <= 3)
+            if (code === 1 || code === 2)
+                return "partly-cloudy";
+            if (code === 3)
                 return "cloudy";
-            if (numeric === 45 || numeric === 48)
+            if (code === 45 || code === 49)
                 return "fog";
-            if (numeric >= 71 && numeric <= 86)
-                return "snow";
-            if (numeric >= 95)
+            if (code === 96 || code === 99)
+                return "hail";
+            if (code === 95 || code === 97 || code === 98)
                 return "thunder";
-            if (numeric >= 51)
+            if (code === 56 || code === 57 || code === 66 || code === 67)
+                return "freezing-rain";
+            if (code === 68 || code === 69 || code === 83 || code === 84)
+                return "sleet";
+            if (code === 71 || code === 73 || code === 75 || code === 85 || code === 86)
+                return "snow";
+            if (code === 51 || code === 53 || code === 55 || code === 61 || code === 63 || code === 65 || code === 80 || code === 81 || code === 82)
                 return "rain";
         }
+        if (raw.indexOf("hail") >= 0 || raw.indexOf("hagel") >= 0)
+            return "hail";
         if (raw.indexOf("thunder") >= 0 || raw.indexOf("gewitter") >= 0)
             return "thunder";
+        if (raw.indexOf("freezing") >= 0 || raw.indexOf("gefrier") >= 0 || raw.indexOf("ice-rain") >= 0)
+            return "freezing-rain";
+        if (raw.indexOf("sleet") >= 0 || raw.indexOf("mixed") >= 0 || raw.indexOf("schneeregen") >= 0)
+            return "sleet";
         if (raw.indexOf("snow") >= 0 || raw.indexOf("schnee") >= 0)
             return "snow";
-        if (raw.indexOf("rain") >= 0 || raw.indexOf("regen") >= 0 || raw.indexOf("shower") >= 0)
+        if (raw.indexOf("rain") >= 0 || raw.indexOf("regen") >= 0 || raw.indexOf("shower") >= 0 || raw.indexOf("drizzle") >= 0 || raw.indexOf("sprüh") >= 0)
             return "rain";
         if (raw.indexOf("fog") >= 0 || raw.indexOf("nebel") >= 0)
             return "fog";
+        if (raw.indexOf("partly") >= 0 || raw.indexOf("mostly-clear") >= 0 || raw.indexOf("aufgelockert") >= 0)
+            return "partly-cloudy";
         if (raw.indexOf("clear") >= 0 || raw.indexOf("sun") >= 0 || raw.indexOf("klar") >= 0)
             return "clear";
-        return "cloudy";
+        if (raw.indexOf("cloud") >= 0 || raw.indexOf("overcast") >= 0 || raw.indexOf("bewölkt") >= 0)
+            return "cloudy";
+        return "unknown";
     }
 
     function line(ctx, x1, y1, x2, y2) {
@@ -85,15 +104,27 @@ Canvas {
         ctx.lineJoin = "round";
 
         const state = category();
+        if (state === "unknown") {
+            ctx.strokeStyle = lineColor;
+            ctx.beginPath();
+            ctx.arc(width * .50, height * .50, width * .30, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = lineColor;
+            ctx.font = "bold " + Math.max(10, Math.round(width * .46)) + "px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("?", width * .50, height * .50);
+            return;
+        }
         if (state === "clear") {
             sun(ctx, width * .50, height * .49, width * .17);
             return;
         }
-        if (state !== "fog")
+        if (state === "partly-cloudy")
             sun(ctx, width * .68, height * .30, width * .11);
         cloud(ctx);
 
-        if (state === "rain" || state === "thunder") {
+        if (state === "rain" || state === "freezing-rain" || state === "thunder") {
             ctx.strokeStyle = state === "thunder" ? sunColor : rainColor;
             if (state === "thunder") {
                 ctx.beginPath();
@@ -106,14 +137,29 @@ Canvas {
                 line(ctx, width * .30, height * .75, width * .25, height * .88);
                 line(ctx, width * .50, height * .75, width * .45, height * .88);
                 line(ctx, width * .70, height * .75, width * .65, height * .88);
+                if (state === "freezing-rain") {
+                    line(ctx, width * .42, height * .91, width * .50, height * .91);
+                    line(ctx, width * .46, height * .87, width * .46, height * .95);
+                }
             }
-        } else if (state === "snow") {
+        } else if (state === "snow" || state === "sleet") {
             ctx.strokeStyle = rainColor;
             for (let index = 0; index < 3; ++index) {
                 const cx = width * (.30 + index * .20);
                 const cy = height * .82;
-                line(ctx, cx - width * .04, cy, cx + width * .04, cy);
-                line(ctx, cx, cy - height * .04, cx, cy + height * .04);
+                if (state === "sleet" && index !== 1)
+                    line(ctx, cx + width * .02, cy - height * .05, cx - width * .03, cy + height * .06);
+                else {
+                    line(ctx, cx - width * .04, cy, cx + width * .04, cy);
+                    line(ctx, cx, cy - height * .04, cx, cy + height * .04);
+                }
+            }
+        } else if (state === "hail") {
+            ctx.strokeStyle = rainColor;
+            for (let index = 0; index < 3; ++index) {
+                ctx.beginPath();
+                ctx.arc(width * (.30 + index * .20), height * .83, width * .035, 0, Math.PI * 2);
+                ctx.stroke();
             }
         } else if (state === "fog") {
             ctx.strokeStyle = lineColor;

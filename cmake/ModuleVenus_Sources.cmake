@@ -388,6 +388,7 @@ set (VictronVenusOS_QML_MODULE_SOURCES
     pages/camper/CamperShell.qml
     pages/camper/v2/CamperV2Climate.qml
     pages/camper/v2/CamperV2Energy.qml
+    pages/camper/v2/CamperV2FavoritesPanel.qml
     pages/camper/v2/CamperV2Home.qml
     pages/camper/v2/CamperV2Lights.qml
     pages/camper/v2/CamperV2PanelHost.qml

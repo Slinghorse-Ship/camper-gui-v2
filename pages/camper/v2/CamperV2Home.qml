@@ -38,24 +38,72 @@ Item {
     }
 
     function solarTotal() {
-        let total = 0;
-        let available = false;
         if (root.adapter.hasSolarPower) {
-            total += Number(root.adapter.solarPower);
-            available = true;
-        } else if (valid(root.solar.power)) {
-            total += Number(root.solar.power);
-            available = true;
+            return Number(root.adapter.solarPower);
         }
-        if (valid(root.indevolt.solarPower)) {
-            total += Number(root.indevolt.solarPower);
-            available = true;
-        }
-        return available ? total : NaN;
+        return valid(root.solar.power) ? Number(root.solar.power) : NaN;
     }
 
     function batterySoc() {
         return root.adapter.hasBatterySoc ? Number(root.adapter.batterySoc) : (valid(root.battery.soc) ? Number(root.battery.soc) : NaN);
+    }
+
+    function batteryPower() {
+        return root.adapter.hasBatteryPower ? Number(root.adapter.batteryPower) : (valid(root.battery.power) ? Number(root.battery.power) : NaN);
+    }
+
+    function dcSystemPower() {
+        return root.adapter.hasDcPower ? Number(root.adapter.dcPower) : (valid(root.energy.dcSystemPower) ? Number(root.energy.dcSystemPower) : NaN);
+    }
+
+    function batteryRuntimeSeconds() {
+        return root.adapter.hasBatteryTimeToGoSeconds ? Number(root.adapter.batteryTimeToGoSeconds) : (valid(root.battery.timeToGoSeconds) ? Number(root.battery.timeToGoSeconds) : NaN);
+    }
+
+    function chargeStateText() {
+        const power = batteryPower();
+        if (!valid(power))
+            return "";
+        if (power > 5)
+            return "Lädt +" + Math.round(power) + " W";
+        if (power < -5)
+            return "Entlädt " + Math.round(Math.abs(power)) + " W";
+        return "Ruhe";
+    }
+
+    function chargeStateColor() {
+        const power = batteryPower();
+        if (!valid(power) || Math.abs(power) <= 5)
+            return style.muted;
+        return power > 0 ? style.green : style.orange;
+    }
+
+    function runtimeText() {
+        const power = batteryPower();
+        if (valid(power) && power > 5)
+            return "Lädt";
+        const seconds = batteryRuntimeSeconds();
+        if (!valid(seconds) || seconds <= 0)
+            return "–";
+        const value = seconds >= 86400 ? seconds / 86400 : seconds / 3600;
+        return value.toFixed(1).replace(".", ",") + (seconds >= 86400 ? " Tage" : " h");
+    }
+
+    function controlMode() {
+        const mode = String(root.automation.controlMode || "");
+        return ["off", "manual", "auto"].indexOf(mode) >= 0 ? mode : (root.automation.enabled === true ? "auto" : "manual");
+    }
+
+    function setControlMode(mode) {
+        if (root.adapter.customCommandsAllowed !== true || ["off", "manual", "auto"].indexOf(mode) < 0)
+            return;
+        root.adapter.command("settings", "patch", null, {
+            patch: {
+                climateAutomation: {
+                    controlMode: mode
+                }
+            }
+        });
     }
 
     function roomHumidity() {
@@ -74,11 +122,7 @@ Item {
         root.adapter.command("settings", "patch", null, {
             patch: {
                 climateAutomation: {
-                    enabled: root.automation.enabled === true,
-                    mode: root.automation.mode || "auto",
-                    targetTemperature: Math.max(10, Math.min(30, Number(root.automation.targetTemperature) + delta)),
-                    hysteresis: valid(root.automation.hysteresis) ? Number(root.automation.hysteresis) : 1,
-                    fanSpeed: valid(root.automation.fanSpeed) ? Number(root.automation.fanSpeed) : 50
+                    targetTemperature: Math.max(10, Math.min(30, Number(root.automation.targetTemperature) + delta))
                 }
             }
         });
@@ -133,11 +177,45 @@ Item {
             border.width: 8
 
             Text {
-                anchors.centerIn: parent
+                x: 0
+                y: 21
+                width: parent.width
+                height: 34
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
                 text: root.numberText(root.batterySoc(), 0, "%")
                 color: style.text
                 font.pixelSize: 28
                 font.bold: true
+            }
+
+            Text {
+                objectName: "camperV2HomeChargeState"
+                x: 4
+                y: 57
+                width: parent.width - 8
+                height: 16
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: root.chargeStateText()
+                color: root.chargeStateColor()
+                elide: Text.ElideRight
+                font.pixelSize: 8
+                font.weight: Font.DemiBold
+            }
+
+            Text {
+                objectName: "camperV2HomeBatteryRuntime"
+                x: 4
+                y: 75
+                width: parent.width - 8
+                height: 15
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: root.runtimeText()
+                color: style.muted
+                elide: Text.ElideRight
+                font.pixelSize: 8
             }
         }
 
@@ -178,6 +256,7 @@ Item {
                 strokeWidth: 1.7
             }
             Text {
+                objectName: "camperV2HomeSolarPower"
                 x: 0
                 y: 49
                 width: parent.width
@@ -221,11 +300,12 @@ Item {
                 strokeWidth: 1.7
             }
             Text {
+                objectName: "camperV2HomeDcPower"
                 x: 0
                 y: 49
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                text: root.numberText(root.battery.power, 0, " W")
+                text: root.numberText(root.dcSystemPower(), 0, " W")
                 color: style.text
                 font.pixelSize: 17
                 font.bold: true
@@ -235,7 +315,7 @@ Item {
                 y: 73
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                text: "Batterieleistung"
+                text: "DC-Verbrauch"
                 color: style.muted
                 font.pixelSize: 9
             }
@@ -248,16 +328,69 @@ Item {
         width: 325
         height: 154
         dayMode: root.dayMode
-        active: root.automation.enabled === true
-        accent: style.orange
+        active: root.controlMode() !== "off"
+        accent: root.controlMode() === "auto" ? style.orange : style.blue
 
         Text {
             x: 13
             y: 10
-            text: "Klimaautomatik"
+            text: "Klima"
             color: style.text
             font.pixelSize: 14
             font.weight: Font.DemiBold
+        }
+
+        Row {
+            x: 124
+            y: 6
+            spacing: 3
+
+            Repeater {
+                model: [
+                    {
+                        mode: "off",
+                        label: "Aus",
+                        width: 47
+                    },
+                    {
+                        mode: "manual",
+                        label: "Manuell",
+                        width: 64
+                    },
+                    {
+                        mode: "auto",
+                        label: "Automatik",
+                        width: 76
+                    }
+                ]
+
+                delegate: Rectangle {
+                    id: modeButton
+                    required property var modelData
+                    readonly property bool selected: root.controlMode() === modelData.mode
+
+                    width: modelData.width
+                    height: 28
+                    radius: 10
+                    color: modeArea.pressed ? style.pressed : (selected ? (modelData.mode === "auto" ? "#382314" : style.selectedBlue) : style.inner)
+                    border.color: selected ? (modelData.mode === "auto" ? style.orange : style.blue) : style.border
+                    opacity: root.adapter.customCommandsAllowed === true ? 1 : .55
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: parent.modelData.label
+                        color: parent.selected ? (parent.modelData.mode === "auto" ? style.orange : style.blue) : style.muted
+                        font.pixelSize: 8
+                        font.weight: Font.DemiBold
+                    }
+                    MouseArea {
+                        id: modeArea
+                        anchors.fill: parent
+                        enabled: root.adapter.customCommandsAllowed === true
+                        onClicked: root.setControlMode(modeButton.modelData.mode)
+                    }
+                }
+            }
         }
 
         Text {

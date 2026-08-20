@@ -12,11 +12,13 @@ Window {
     property int currentCamperPage: 0
     property int quickCommandCount: 0
     property int quickSettingsCount: 0
+    property int favoriteSettingsCount: 0
     property int commandCount: 0
     property string lastCommandTarget: ""
     property string lastCommandAction: ""
     property var lastCommandValue: null
     property int lastCommandChannel: 0
+    property string lastClimateControlMode: ""
     property bool previewHighBeamVehicleOn: false
     property bool previewHighBeamManualOn: false
     property bool previewHighBeamOutputOnline: true
@@ -26,6 +28,10 @@ Window {
     property bool previewCustomCommandsAllowed: true
     property bool previewAllLightsOn: false
     property bool previewLightsRightView: false
+    property real previewBatteryPower: 53
+    property real previewDcPower: 184
+    property real previewTimeToGoSeconds: 97200
+    property string previewClimateControlMode: "auto"
     readonly property int previewActivePanel: v2Shell.activePanel
 
     onPreviewPanelChanged: v2Shell.activePanel = previewPanel
@@ -47,9 +53,15 @@ Window {
         readonly property bool remoteSession: false
         readonly property real batterySoc: 82
         readonly property real batteryVoltage: 12.7
+        readonly property real batteryPower: window.previewBatteryPower
+        readonly property real batteryTimeToGoSeconds: window.previewTimeToGoSeconds
+        readonly property real dcPower: window.previewDcPower
         readonly property real solarPower: 486
         readonly property bool hasBatterySoc: true
         readonly property bool hasBatteryVoltage: true
+        readonly property bool hasBatteryPower: true
+        readonly property bool hasBatteryTimeToGoSeconds: true
+        readonly property bool hasDcPower: true
         readonly property bool hasSolarPower: true
         property var stateData: ({
                 energy: {
@@ -60,8 +72,10 @@ Window {
                         voltage: 12.7,
                         starterVoltage: 12.5,
                         current: 4.2,
-                        power: 53
+                        power: window.previewBatteryPower,
+                        timeToGoSeconds: window.previewTimeToGoSeconds
                     },
+                    dcSystemPower: window.previewDcPower,
                     solar: {
                         power: 486,
                         chargers: [
@@ -122,6 +136,7 @@ Window {
                     roomTemperature: 21.6,
                     automation: {
                         enabled: true,
+                        controlMode: window.previewClimateControlMode,
                         mode: "auto",
                         targetTemperature: 20,
                         hysteresis: 1,
@@ -241,6 +256,7 @@ Window {
                 },
                 ui: {
                     quickAccessIds: ["switch:water_pump", "switch:starlink", "switch:dc_outlets_left", "light:inside_main"],
+                    favoriteIds: ["switch:water_pump", "device:heater", "device:maxxfan", "device:inverter"],
                     quickAccessOptions: [
                         {
                             id: "switch:water_pump",
@@ -271,6 +287,24 @@ Window {
                             name: "Autoterm Air 2D",
                             group: "Klima",
                             icon: "heater"
+                        },
+                        {
+                            id: "device:maxxfan",
+                            name: "MaxxFan",
+                            group: "Klima",
+                            icon: "fan"
+                        },
+                        {
+                            id: "device:inverter",
+                            name: "230 V",
+                            group: "Energie",
+                            icon: "outlet"
+                        },
+                        {
+                            id: "light:outside_rear",
+                            name: "Hecklicht",
+                            group: "Licht",
+                            icon: "bulb"
                         }
                     ],
                     quickAccess: [
@@ -329,6 +363,95 @@ Window {
                                 channel: 7
                             }
                         }
+                    ],
+                    favorites: [
+                        {
+                            id: "switch:water_pump",
+                            name: "Wasserpumpe",
+                            icon: "pump",
+                            active: true,
+                            available: true,
+                            status: "EIN",
+                            command: {
+                                target: "waterPump",
+                                action: "set",
+                                value: false
+                            }
+                        },
+                        {
+                            id: "device:heater",
+                            name: "Autoterm",
+                            icon: "heater",
+                            active: false,
+                            available: true,
+                            status: "BEREIT",
+                            command: {
+                                target: "heater",
+                                action: "start",
+                                value: null
+                            }
+                        },
+                        {
+                            id: "device:maxxfan",
+                            name: "MaxxFan",
+                            icon: "fan",
+                            active: true,
+                            available: true,
+                            status: "40 %",
+                            command: {
+                                target: "maxxfan",
+                                action: "set",
+                                value: false
+                            }
+                        },
+                        {
+                            id: "device:inverter",
+                            name: "230 V",
+                            icon: "outlet",
+                            active: false,
+                            available: true,
+                            status: "AUS",
+                            command: {
+                                target: "inverter",
+                                action: "set",
+                                value: true
+                            }
+                        }
+                    ]
+                },
+                operations: {
+                    lightScenes: [
+                        {
+                            id: "camping",
+                            name: "Camping",
+                            values: {
+                                inside_main: 65,
+                                outside_left: 70,
+                                outside_right: 70,
+                                outside_rear: 0
+                            }
+                        },
+                        {
+                            id: "night",
+                            name: "Nacht",
+                            values: {
+                                inside_main: 20,
+                                outside_left: 0,
+                                outside_right: 0
+                            }
+                        },
+                        {
+                            id: "all_off",
+                            name: "Alles aus",
+                            values: {
+                                inside_main: 0,
+                                outside_left: 0,
+                                outside_right: 0,
+                                outside_rear: 0,
+                                outside_front_white: 0,
+                                outside_front_amber: 0
+                            }
+                        }
                     ]
                 }
             })
@@ -376,6 +499,48 @@ Window {
                     setUtc: new Date(base.getTime() + 20 * 3600000).toISOString(),
                     origin: "calculated"
                 },
+                tides: {
+                    source: "BSH",
+                    attribution: "© Bundesamt für Seeschifffahrt und Hydrographie (BSH)",
+                    station: {
+                        id: "748P",
+                        name: "Oldenburg, Drielake, Hunte",
+                        distanceKm: 3.2
+                    },
+                    updatedUtc: new Date().toISOString(),
+                    stale: false,
+                    referenceLevel: "PNP",
+                    nextHigh: {
+                        t: new Date(base.getTime() + 2 * 3600000).toISOString(),
+                        heightM: 7.31
+                    },
+                    nextLow: {
+                        t: new Date(base.getTime() + 9 * 3600000).toISOString(),
+                        heightM: 4.68
+                    },
+                    curve: [
+                        {
+                            t: new Date(base.getTime()).toISOString(),
+                            heightM: 5.2
+                        },
+                        {
+                            t: new Date(base.getTime() + 6 * 3600000).toISOString(),
+                            heightM: 7.31
+                        },
+                        {
+                            t: new Date(base.getTime() + 12 * 3600000).toISOString(),
+                            heightM: 4.68
+                        },
+                        {
+                            t: new Date(base.getTime() + 18 * 3600000).toISOString(),
+                            heightM: 7.08
+                        },
+                        {
+                            t: new Date(base.getTime() + 24 * 3600000).toISOString(),
+                            heightM: 4.83
+                        }
+                    ]
+                },
                 hourly: hourly,
                 daily: daily
             };
@@ -387,12 +552,17 @@ Window {
             window.lastCommandAction = action;
             window.lastCommandValue = value;
             window.lastCommandChannel = extra && extra.channel ? Number(extra.channel) : 0;
+            if (target === "settings" && extra && extra.patch && extra.patch.climateAutomation && extra.patch.climateAutomation.controlMode)
+                window.lastClimateControlMode = String(extra.patch.climateAutomation.controlMode);
         }
         function activateQuick(item) {
             window.quickCommandCount += 1;
         }
         function setQuickAccessIds(ids) {
             window.quickSettingsCount += 1;
+        }
+        function setFavoriteIds(ids) {
+            window.favoriteSettingsCount += 1;
         }
     }
 

@@ -5,6 +5,7 @@ import "../../../components/camper/v2"
 
 Item {
     id: root
+    objectName: "camperV2Energy"
 
     required property var adapter
     property bool dayMode: false
@@ -53,20 +54,10 @@ Item {
     }
 
     function solarTotal() {
-        let total = 0;
-        let available = false;
         if (valid(solar.power)) {
-            total += Number(solar.power);
-            available = true;
-        } else if (adapter.hasSolarPower) {
-            total += Number(adapter.solarPower);
-            available = true;
+            return Number(solar.power);
         }
-        if (valid(indevolt.solarPower)) {
-            total += Number(indevolt.solarPower);
-            available = true;
-        }
-        return available ? total : NaN;
+        return adapter.hasSolarPower ? Number(adapter.solarPower) : NaN;
     }
 
     function yieldToday() {
@@ -163,6 +154,7 @@ Item {
     }
 
     Item {
+        objectName: "camperV2EnergyPowerPane"
         x: 12
         y: 56
         width: 776
@@ -170,6 +162,7 @@ Item {
         visible: root.energyPane === 0
 
         CamperV2Card {
+            objectName: "camperV2EnergyDcCard"
             x: 0
             y: 0
             width: 502
@@ -247,6 +240,7 @@ Item {
         }
 
         CamperV2Card {
+            objectName: "camperV2EnergyAcCard"
             x: 511
             y: 0
             width: 265
@@ -310,6 +304,7 @@ Item {
     }
 
     Item {
+        objectName: "camperV2EnergySourcesPane"
         x: 12
         y: 56
         width: 776
@@ -317,6 +312,7 @@ Item {
         visible: root.energyPane === 1
 
         CamperV2Card {
+            objectName: "camperV2EnergySolarCard"
             x: 0
             y: 0
             width: 252
@@ -376,6 +372,7 @@ Item {
         }
 
         CamperV2Card {
+            objectName: "camperV2EnergyOrionCard"
             x: 261
             y: 0
             width: 253
@@ -440,6 +437,7 @@ Item {
         }
 
         CamperV2Card {
+            objectName: "camperV2EnergyIndevoltCard"
             x: 523
             y: 0
             width: 253

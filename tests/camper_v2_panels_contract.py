@@ -10,7 +10,9 @@ MODULE_INSTALL = ROOT / "cmake" / "ModuleVenus.cmake"
 SHELL = ROOT / "pages" / "camper" / "CamperShell.qml"
 V2_SHELL = ROOT / "pages" / "camper" / "v2" / "CamperV2Shell.qml"
 HOST = ROOT / "pages" / "camper" / "v2" / "CamperV2PanelHost.qml"
+HEADER = ROOT / "components" / "camper" / "v2" / "CamperV2Header.qml"
 QUICK = ROOT / "pages" / "camper" / "v2" / "CamperV2QuickPanel.qml"
+FAVORITES = ROOT / "pages" / "camper" / "v2" / "CamperV2FavoritesPanel.qml"
 WEATHER = ROOT / "pages" / "camper" / "v2" / "CamperV2WeatherPanel.qml"
 WEATHER_ADAPTER = ROOT / "data" / "camper" / "CamperWeatherAdapter.qml"
 BACKEND = ROOT / "data" / "camper" / "CamperBackendAdapter.qml"
@@ -81,6 +83,44 @@ class CamperV2PanelsContractTest(unittest.TestCase):
         self.assertEqual(shell.count("CamperV2PanelHost"), 1)
         self.assertIn("panelHost.openQuick(true)", shell)
 
+    def test_header_has_manual_touch_buttons_for_both_shared_panels(self):
+        header = HEADER.read_text(encoding="utf-8")
+        shell = V2_SHELL.read_text(encoding="utf-8")
+        for name in (
+            "camperV2HeaderFavoriteButton",
+            "camperV2HeaderWeatherButton",
+            "favoritesRequested",
+            "weatherRequested",
+        ):
+            self.assertIn(name, header)
+        self.assertGreaterEqual(header.count("width: 44"), 2)
+        self.assertGreaterEqual(header.count("height: 44"), 2)
+        self.assertIn("onFavoritesRequested: panelHost.openFavorites()", shell)
+        self.assertIn("onWeatherRequested: panelHost.openWeather()", shell)
+        self.assertIn("favoritesOpen: panelHost.activePanel === panelHost.quickPanel", shell)
+        self.assertIn("weatherOpen: panelHost.activePanel === panelHost.weatherPanel", shell)
+        self.assertEqual(shell.count("CamperV2PanelHost"), 1)
+        self.assertNotIn("adapter.command", header)
+
+    def test_left_favorites_and_home_quick_access_are_separate_cerbo_lists(self):
+        favorites = FAVORITES.read_text(encoding="utf-8")
+        quick = QUICK.read_text(encoding="utf-8")
+        host = HOST.read_text(encoding="utf-8")
+        for token in ("ui.favorites", "ui.favoriteIds", "adapter.setFavoriteIds", "ui.quickAccessOptions"):
+            self.assertIn(token, favorites)
+        for token in ("ui.quickAccess", "ui.quickAccessIds", "adapter.setQuickAccessIds"):
+            self.assertIn(token, quick)
+        self.assertNotIn("ui.quickAccessIds", favorites)
+        self.assertNotIn("adapter.setQuickAccessIds", favorites)
+        self.assertNotIn("ui.favoriteIds", quick)
+        self.assertIn("CamperV2FavoritesPanel", host)
+        self.assertIn("root.quickEditorRequested ? quickPanelContent : favoritesPanelContent", host)
+        self.assertIn('text: root.editing ? "Favoriten auswählen" : "Antippen zum Schalten"', favorites)
+        self.assertIn('text: root.editing ? "Schnellzugriff auswählen" : "Antippen zum Schalten"', quick)
+        for source in (favorites, quick):
+            self.assertIn("elide: Text.ElideRight", source)
+            self.assertIn("clip: true", source)
+
     def test_quick_panel_uses_only_existing_state_and_command_contract(self):
         source = QUICK.read_text(encoding="utf-8")
         for name in (
@@ -136,6 +176,7 @@ class CamperV2PanelsContractTest(unittest.TestCase):
             "components/camper/v2/CamperV2WeatherChart.qml",
             "components/camper/v2/CamperV2WeatherIcon.qml",
             "pages/camper/v2/CamperV2PanelHost.qml",
+            "pages/camper/v2/CamperV2FavoritesPanel.qml",
             "pages/camper/v2/CamperV2QuickPanel.qml",
             "pages/camper/v2/CamperV2WeatherPanel.qml",
         ):

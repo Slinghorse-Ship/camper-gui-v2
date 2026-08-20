@@ -49,6 +49,7 @@ class CamperV2ResourceContractTest(unittest.TestCase):
         weather = WEATHER.read_text(encoding="utf-8")
         panel = (V2_PAGES / "CamperV2WeatherPanel.qml").read_text(encoding="utf-8")
         quick = (V2_PAGES / "CamperV2QuickPanel.qml").read_text(encoding="utf-8")
+        favorites = (V2_PAGES / "CamperV2FavoritesPanel.qml").read_text(encoding="utf-8")
         energy = (V2_PAGES / "CamperV2Energy.qml").read_text(encoding="utf-8")
         lights = (V2_PAGES / "CamperV2Lights.qml").read_text(encoding="utf-8")
         chart = (V2_COMPONENTS / "CamperV2WeatherChart.qml").read_text(encoding="utf-8")
@@ -59,6 +60,7 @@ class CamperV2ResourceContractTest(unittest.TestCase):
         self.assertIn("weather.hourly.slice(0, 48)", panel)
         self.assertIn("weather.daily.slice(0, 6)", panel)
         self.assertIn("quickAccessOptions.slice(0, 32)", quick)
+        self.assertIn("quickAccessOptions.slice(0, 32)", favorites)
         self.assertIn("solar.chargers.slice(0, 8)", energy)
         self.assertIn("power.dcChannels.slice(0, 16)", energy)
         self.assertIn("snapshot.lights.items.slice(0, 16)", lights)
@@ -67,9 +69,11 @@ class CamperV2ResourceContractTest(unittest.TestCase):
     def test_user_facing_core_models_have_fixed_layout_bounds(self):
         home = (V2_PAGES / "CamperV2Home.qml").read_text(encoding="utf-8")
         quick = (V2_PAGES / "CamperV2QuickPanel.qml").read_text(encoding="utf-8")
+        favorites = (V2_PAGES / "CamperV2FavoritesPanel.qml").read_text(encoding="utf-8")
         weather = (V2_PAGES / "CamperV2WeatherPanel.qml").read_text(encoding="utf-8")
         self.assertIn("quickAccess.slice(0, 4)", home)
         self.assertIn("quickAccess.slice(0, 4)", quick)
+        self.assertIn("favorites.slice(0, 4)", favorites)
         self.assertIn("model: 4", quick)
         self.assertIn("slice(0, 6)", weather)
 

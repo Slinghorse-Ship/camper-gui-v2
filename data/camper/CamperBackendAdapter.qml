@@ -22,9 +22,15 @@ Item {
 
     readonly property real batterySoc: nativeData.batterySoc
     readonly property real batteryVoltage: nativeData.batteryVoltage
+    readonly property real batteryPower: nativeData.batteryPower
+    readonly property real batteryTimeToGoSeconds: nativeData.batteryTimeToGoSeconds
+    readonly property real dcPower: nativeData.dcPower
     readonly property real solarPower: nativeData.solarPower
     readonly property bool hasBatterySoc: nativeData.hasBatterySoc
     readonly property bool hasBatteryVoltage: nativeData.hasBatteryVoltage
+    readonly property bool hasBatteryPower: nativeData.hasBatteryPower
+    readonly property bool hasBatteryTimeToGoSeconds: nativeData.hasBatteryTimeToGoSeconds
+    readonly property bool hasDcPower: nativeData.hasDcPower
     readonly property bool hasSolarPower: nativeData.hasSolarPower
 
     function command(target, action, value, extra) {
@@ -37,6 +43,10 @@ Item {
 
     function setQuickAccessIds(ids) {
         custom.setQuickAccessIds(ids);
+    }
+
+    function setFavoriteIds(ids) {
+        custom.setFavoriteIds(ids);
     }
 
     CamperVictronAdapter {

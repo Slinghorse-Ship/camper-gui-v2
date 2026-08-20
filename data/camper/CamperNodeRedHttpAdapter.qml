@@ -123,6 +123,16 @@ Item {
         });
     }
 
+    function setFavoriteIds(ids) {
+        command("settings", "patch", null, {
+            patch: {
+                ui: {
+                    favoriteIds: ids
+                }
+            }
+        });
+    }
+
     Timer {
         interval: 1000
         running: root.pollingEnabled

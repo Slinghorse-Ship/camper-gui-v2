@@ -43,8 +43,7 @@ FocusScope {
         anchors.fill: parent
 
         CamperV2Shell {
-            width: 800
-            height: 480
+            anchors.fill: parent
             adapter: backend
             onOpenVictronSettings: root.openVictronSettings()
             onCloseRequested: root.closeRequested()

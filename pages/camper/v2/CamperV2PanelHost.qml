@@ -20,12 +20,18 @@ Item {
         activePanel = quickPanel;
     }
 
+    function openFavorites() {
+        quickEditorRequested = false;
+        activePanel = quickPanel;
+    }
+
     function openWeather() {
         activePanel = weatherPanel;
     }
 
     function closePanel() {
         activePanel = closedPanel;
+        quickEditorRequested = false;
     }
 
     CamperV2Style {
@@ -54,7 +60,7 @@ Item {
             const horizontal = mouse.x - startX;
             const vertical = Math.abs(mouse.y - startY);
             if (horizontal >= root.swipeThreshold && horizontal >= vertical * 1.5)
-                root.openQuick(false);
+                root.openFavorites();
         }
     }
 
@@ -157,7 +163,7 @@ Item {
             width: parent.width - 122
             height: 54
             verticalAlignment: Text.AlignVCenter
-            text: root.activePanel === root.quickPanel ? "Favoriten" : "Wetter"
+            text: root.activePanel === root.quickPanel ? (root.quickEditorRequested ? "Schnellzugriff" : "Favoriten") : "Wetter"
             color: style.text
             font.pixelSize: 18
             font.weight: Font.DemiBold
@@ -195,7 +201,7 @@ Item {
             width: parent.width - 32
             height: parent.height - 76
             active: root.activePanel === root.quickPanel
-            sourceComponent: quickPanelContent
+            sourceComponent: root.quickEditorRequested ? quickPanelContent : favoritesPanelContent
         }
 
         Loader {
@@ -214,6 +220,15 @@ Item {
                 adapter: root.adapter
                 dayMode: root.dayMode
                 editing: root.quickEditorRequested
+            }
+        }
+
+        Component {
+            id: favoritesPanelContent
+            CamperV2FavoritesPanel {
+                objectName: "camperV2FavoritesPanel"
+                adapter: root.adapter
+                dayMode: root.dayMode
             }
         }
 

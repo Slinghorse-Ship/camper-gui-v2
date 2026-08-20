@@ -12,10 +12,40 @@ Item {
     property url rightVehicleSource: "qrc:/images/camper_v2_vehicle_right.png"
     property bool rightView: false
     property string selectedLightId: "inside_main"
+    property bool sceneEditorVisible: false
+    property string sceneEditorId: "camping"
+    property var sceneDraft: ({})
 
     readonly property var snapshot: adapter.stateData || ({})
     readonly property var lightItems: snapshot.lights && snapshot.lights.items ? snapshot.lights.items.slice(0, 16) : []
     readonly property var highBeam: snapshot.vehicle && snapshot.vehicle.highBeam ? snapshot.vehicle.highBeam : ({})
+    readonly property var lightScenes: snapshot.operations && Array.isArray(snapshot.operations.lightScenes) ? snapshot.operations.lightScenes : []
+    readonly property var sceneLightModels: [
+        {
+            id: "inside_main",
+            name: "Innenlicht"
+        },
+        {
+            id: "outside_left",
+            name: "Außen links"
+        },
+        {
+            id: "outside_right",
+            name: "Außen rechts"
+        },
+        {
+            id: "outside_rear",
+            name: "Hecklicht"
+        },
+        {
+            id: "outside_front_white",
+            name: "Front weiß"
+        },
+        {
+            id: "outside_front_amber",
+            name: "Front orange"
+        }
+    ]
 
     CamperV2Style {
         id: style
@@ -78,17 +108,22 @@ Item {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    function lineDistance(x, y, x1, x2, lineY) {
-        const nearestX = Math.max(x1, Math.min(x2, x));
-        return pointDistance(x, y, nearestX, lineY);
+    function lineDistance(x, y, x1, y1, x2, y2) {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const lengthSquared = dx * dx + dy * dy;
+        if (lengthSquared <= 0)
+            return pointDistance(x, y, x1, y1);
+        const position = Math.max(0, Math.min(1, ((x - x1) * dx + (y - y1) * dy) / lengthSquared));
+        return pointDistance(x, y, x1 + position * dx, y1 + position * dy);
     }
 
     function handleVehicleLampClick(x, y, itemWidth, itemHeight) {
         const sourceX = x * 560 / itemWidth;
         const sourceY = y * 360 / itemHeight;
-        const sideDistance = rightView ? Math.min(pointDistance(sourceX, sourceY, 69, 45), pointDistance(sourceX, sourceY, 158, 41)) : Math.min(pointDistance(sourceX, sourceY, 378, 33), pointDistance(sourceX, sourceY, 462, 36));
-        const rearDistance = pointDistance(sourceX, sourceY, rightView ? 52 : 437, 12);
-        const highBeamDistance = lineDistance(sourceX, sourceY, rightView ? 260 : 166, rightView ? 407 : 339, rightView ? 39 : 50);
+        const sideDistance = rightView ? Math.min(pointDistance(sourceX, sourceY, 71, 44.5), pointDistance(sourceX, sourceY, 155.5, 43.5)) : Math.min(pointDistance(sourceX, sourceY, 376, 37.5), pointDistance(sourceX, sourceY, 462.5, 38.5));
+        const rearDistance = pointDistance(sourceX, sourceY, rightView ? 50 : 439, 12);
+        const highBeamDistance = rightView ? lineDistance(sourceX, sourceY, 263, 60, 403, 65) : lineDistance(sourceX, sourceY, 168, 49, 317, 49);
         const nearest = Math.min(sideDistance, rearDistance, highBeamDistance);
 
         // Keep the hit areas forgiving without turning blank roof/body pixels
@@ -119,6 +154,82 @@ Item {
             adapter.command("scene", "run", sceneId, {
                 sceneId: sceneId
             });
+    }
+
+    function sceneProfile(sceneId) {
+        for (let index = 0; index < lightScenes.length; ++index) {
+            if (lightScenes[index] && String(lightScenes[index].id) === sceneId)
+                return lightScenes[index];
+        }
+        return ({
+                id: sceneId,
+                values: ({})
+            });
+    }
+
+    function openSceneEditor(sceneId) {
+        sceneEditorId = ["camping", "night", "all_off"].indexOf(sceneId) >= 0 ? sceneId : "camping";
+        const source = sceneProfile(sceneEditorId).values || ({});
+        const next = ({});
+        for (let index = 0; index < sceneLightModels.length; ++index) {
+            const lightId = sceneLightModels[index].id;
+            if (Object.prototype.hasOwnProperty.call(source, lightId) && validSceneValue(source[lightId]))
+                next[lightId] = Math.max(0, Math.min(100, Math.round(Number(source[lightId]))));
+        }
+        sceneDraft = next;
+        sceneEditorVisible = true;
+    }
+
+    function validSceneValue(value) {
+        return value !== null && value !== undefined && value !== "" && isFinite(Number(value));
+    }
+
+    function sceneValue(lightId) {
+        return Object.prototype.hasOwnProperty.call(sceneDraft, lightId) ? Number(sceneDraft[lightId]) : null;
+    }
+
+    function sceneMode(lightId) {
+        const value = sceneValue(lightId);
+        return value === null ? "keep" : (value <= 0 ? "off" : "on");
+    }
+
+    function setSceneMode(lightId, mode) {
+        const next = Object.assign({}, sceneDraft);
+        if (mode === "keep") {
+            delete next[lightId];
+        } else if (mode === "off") {
+            next[lightId] = 0;
+        } else {
+            const previous = sceneValue(lightId);
+            next[lightId] = previous !== null && previous > 0 ? previous : 100;
+        }
+        sceneDraft = next;
+    }
+
+    function setSceneDim(lightId, value) {
+        const next = Object.assign({}, sceneDraft);
+        next[lightId] = Math.max(1, Math.min(100, Math.round(Number(value))));
+        sceneDraft = next;
+    }
+
+    function saveSceneProfile() {
+        if (adapter.customCommandsAllowed !== true)
+            return;
+        const values = ({});
+        for (let index = 0; index < sceneLightModels.length; ++index) {
+            const lightId = sceneLightModels[index].id;
+            const value = sceneValue(lightId);
+            if (value !== null)
+                values[lightId] = Math.max(0, Math.min(100, Math.round(value)));
+        }
+        const lightingScenes = ({});
+        lightingScenes[sceneEditorId] = values;
+        adapter.command("settings", "patch", null, {
+            patch: {
+                lightingScenes: lightingScenes
+            }
+        });
+        sceneEditorVisible = false;
     }
 
     readonly property var inside: findLight("inside_main")
@@ -214,8 +325,8 @@ Item {
             }
 
             MouseArea {
-                x: parent.width * (root.rightView ? .309 : .6085)
-                y: parent.height * .353
+                x: parent.width * (root.rightView ? .3172 : .637)
+                y: parent.height * .322
                 width: parent.width * .162
                 height: parent.height * .268
                 enabled: root.available(root.inside)
@@ -298,11 +409,15 @@ Item {
                     {
                         label: "Alles aus",
                         id: "all_off"
+                    },
+                    {
+                        label: "Anpassen",
+                        id: "edit"
                     }
                 ]
                 delegate: Rectangle {
                     required property var modelData
-                    width: 102
+                    width: modelData.id === "edit" ? 72 : 78
                     height: 31
                     radius: 10
                     color: sceneMouse.pressed ? style.pressed : style.inner
@@ -318,7 +433,7 @@ Item {
                         id: sceneMouse
                         anchors.fill: parent
                         enabled: root.adapter.customCommandsAllowed === true
-                        onClicked: root.runScene(parent.modelData.id)
+                        onClicked: parent.modelData.id === "edit" ? root.openSceneEditor("camping") : root.runScene(parent.modelData.id)
                     }
                 }
             }
@@ -338,6 +453,11 @@ Item {
                         icon: "cabinLight"
                     },
                     {
+                        id: "outside_rear",
+                        name: "Hinten",
+                        icon: "rearLight"
+                    },
+                    {
                         id: "outside_left",
                         name: "Links",
                         icon: "workLightLeft"
@@ -346,11 +466,6 @@ Item {
                         id: "outside_right",
                         name: "Rechts",
                         icon: "workLightRight"
-                    },
-                    {
-                        id: "outside_rear",
-                        name: "Hinten",
-                        icon: "rearLight"
                     }
                 ]
                 delegate: Rectangle {
@@ -545,6 +660,235 @@ Item {
                 available: root.selectedDimmable && root.available(root.selectedLight)
                 accent: style.blue
                 onCommitted: value => root.dimLight(root.selectedLight, value)
+            }
+        }
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        z: 20
+        visible: root.sceneEditorVisible
+        color: "#b8000000"
+
+        MouseArea {
+            anchors.fill: parent
+        }
+
+        CamperV2Card {
+            x: 64
+            y: 8
+            width: 672
+            height: 326
+            dayMode: root.dayMode
+
+            Text {
+                x: 14
+                y: 10
+                text: "Lichtszenen anpassen"
+                color: style.text
+                font.pixelSize: 14
+                font.weight: Font.DemiBold
+            }
+
+            Row {
+                x: 177
+                y: 6
+                spacing: 4
+
+                Repeater {
+                    model: [
+                        {
+                            id: "camping",
+                            label: "Camping"
+                        },
+                        {
+                            id: "night",
+                            label: "Nacht"
+                        },
+                        {
+                            id: "all_off",
+                            label: "Alles aus"
+                        }
+                    ]
+                    delegate: Rectangle {
+                        required property var modelData
+                        readonly property bool selected: root.sceneEditorId === modelData.id
+                        width: 77
+                        height: 32
+                        radius: 10
+                        color: sceneSelect.pressed ? style.pressed : (selected ? style.selectedBlue : style.inner)
+                        border.color: selected ? style.blue : style.border
+                        Text {
+                            anchors.centerIn: parent
+                            text: parent.modelData.label
+                            color: parent.selected ? style.blue : style.muted
+                            font.pixelSize: 9
+                            font.weight: Font.DemiBold
+                        }
+                        MouseArea {
+                            id: sceneSelect
+                            anchors.fill: parent
+                            onClicked: root.openSceneEditor(parent.modelData.id)
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                x: 427
+                y: 5
+                width: 106
+                height: 34
+                radius: 11
+                color: saveSceneArea.pressed ? style.pressed : style.selectedGreen
+                border.color: style.green
+                Text {
+                    anchors.centerIn: parent
+                    text: "Speichern"
+                    color: style.green
+                    font.pixelSize: 9
+                    font.weight: Font.DemiBold
+                }
+                MouseArea {
+                    id: saveSceneArea
+                    anchors.fill: parent
+                    enabled: root.adapter.customCommandsAllowed === true
+                    onClicked: root.saveSceneProfile()
+                }
+            }
+
+            Rectangle {
+                x: parent.width - 49
+                y: 4
+                width: 40
+                height: 40
+                radius: 12
+                color: closeSceneArea.pressed ? style.pressed : style.inner
+                CamperV2Icon {
+                    anchors.centerIn: parent
+                    width: 20
+                    height: 20
+                    kind: "close"
+                    lineColor: style.text
+                    strokeWidth: 2
+                }
+                MouseArea {
+                    id: closeSceneArea
+                    anchors.fill: parent
+                    onClicked: root.sceneEditorVisible = false
+                }
+            }
+
+            Grid {
+                x: 10
+                y: 51
+                columns: 2
+                columnSpacing: 8
+                rowSpacing: 7
+
+                Repeater {
+                    model: root.sceneLightModels
+
+                    delegate: Rectangle {
+                        id: sceneLightRow
+                        required property var modelData
+                        readonly property bool dimmable: modelData.id !== "outside_front_amber"
+                        readonly property real configuredValue: root.sceneValue(modelData.id) === null ? 100 : root.sceneValue(modelData.id)
+
+                        width: 322
+                        height: 82
+                        radius: 12
+                        color: style.inner
+                        border.color: style.border
+
+                        Text {
+                            x: 10
+                            y: 8
+                            width: 112
+                            text: parent.modelData.name
+                            color: style.text
+                            elide: Text.ElideRight
+                            font.pixelSize: 10
+                            font.weight: Font.DemiBold
+                        }
+
+                        Row {
+                            x: 126
+                            y: 5
+                            spacing: 3
+                            Repeater {
+                                model: [
+                                    {
+                                        mode: "keep",
+                                        label: "Lassen"
+                                    },
+                                    {
+                                        mode: "off",
+                                        label: "Aus"
+                                    },
+                                    {
+                                        mode: "on",
+                                        label: "Ein"
+                                    }
+                                ]
+                                delegate: Rectangle {
+                                    required property var modelData
+                                    readonly property bool selected: root.sceneMode(sceneLightRow.modelData.id) === modelData.mode
+                                    width: 58
+                                    height: 27
+                                    radius: 9
+                                    color: sceneModeArea.pressed ? style.pressed : (selected ? style.selectedBlue : style.panel)
+                                    border.color: selected ? style.blue : style.border
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: parent.modelData.label
+                                        color: parent.selected ? style.blue : style.muted
+                                        font.pixelSize: 8
+                                    }
+                                    MouseArea {
+                                        id: sceneModeArea
+                                        anchors.fill: parent
+                                        onClicked: root.setSceneMode(sceneLightRow.modelData.id, parent.modelData.mode)
+                                    }
+                                }
+                            }
+                        }
+
+                        CamperV2Range {
+                            x: 8
+                            y: 40
+                            width: 270
+                            height: 34
+                            visible: parent.dimmable && root.sceneMode(parent.modelData.id) === "on"
+                            dayMode: root.dayMode
+                            value: parent.configuredValue
+                            stepSize: 1
+                            available: true
+                            accent: style.blue
+                            onCommitted: value => root.setSceneDim(sceneLightRow.modelData.id, value)
+                        }
+                        Text {
+                            x: 278
+                            y: 46
+                            width: 36
+                            horizontalAlignment: Text.AlignRight
+                            visible: parent.dimmable && root.sceneMode(parent.modelData.id) === "on"
+                            text: Math.round(parent.configuredValue) + "%"
+                            color: style.blue
+                            font.pixelSize: 9
+                            font.weight: Font.DemiBold
+                        }
+                        Text {
+                            x: 10
+                            y: 48
+                            width: parent.width - 20
+                            visible: root.sceneMode(parent.modelData.id) !== "on" || !parent.dimmable
+                            text: root.sceneMode(parent.modelData.id) === "keep" ? "Beim Szenenstart unverändert" : (root.sceneMode(parent.modelData.id) === "off" ? "Wird ausgeschaltet" : "Wird eingeschaltet")
+                            color: style.muted
+                            font.pixelSize: 8
+                        }
+                    }
+                }
             }
         }
     }

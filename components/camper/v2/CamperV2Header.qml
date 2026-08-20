@@ -2,12 +2,17 @@ import QtQuick
 
 Item {
     id: root
+    objectName: "camperV2Header"
 
     property string pageTitle: "Home"
     property bool connected: false
     property bool dayMode: false
+    property bool favoritesOpen: false
+    property bool weatherOpen: false
     property url darkLogoSource: "qrc:/images/camper_transit_line_dark.png"
     property url lightLogoSource: "qrc:/images/camper_transit_line_light.png"
+    signal favoritesRequested
+    signal weatherRequested
     signal themeRequested
     signal closeRequested
 
@@ -45,7 +50,7 @@ Item {
     Text {
         x: 82
         y: 0
-        width: 470
+        width: Math.max(120, root.width - 390)
         height: 50
         verticalAlignment: Text.AlignVCenter
         text: root.pageTitle
@@ -55,9 +60,65 @@ Item {
     }
 
     Rectangle {
-        x: 592
+        objectName: "camperV2HeaderFavoriteButton"
+        x: root.width - 300
+        y: 3
+        width: 44
+        height: 44
+        radius: 13
+        color: favoritesArea.pressed ? style.pressed : (root.favoritesOpen ? style.selectedGreen : style.inner)
+        border.color: root.favoritesOpen ? style.green : style.border
+        border.width: root.favoritesOpen ? 2 : 1
+
+        CamperV2Icon {
+            anchors.centerIn: parent
+            width: 22
+            height: 22
+            kind: "favorite"
+            lineColor: style.green
+            strokeWidth: 1.8
+        }
+
+        MouseArea {
+            id: favoritesArea
+            anchors.fill: parent
+            onClicked: root.favoritesRequested()
+        }
+    }
+
+    Rectangle {
+        objectName: "camperV2HeaderWeatherButton"
+        x: root.width - 252
+        y: 3
+        width: 44
+        height: 44
+        radius: 13
+        color: weatherArea.pressed ? style.pressed : (root.weatherOpen ? style.selectedBlue : style.inner)
+        border.color: root.weatherOpen ? style.blue : style.border
+        border.width: root.weatherOpen ? 2 : 1
+
+        CamperV2WeatherIcon {
+            anchors.centerIn: parent
+            width: 24
+            height: 24
+            weatherCode: "cloudy"
+            lineColor: style.blue
+            sunColor: style.orange
+            rainColor: style.blue
+            strokeWidth: 1.8
+        }
+
+        MouseArea {
+            id: weatherArea
+            anchors.fill: parent
+            onClicked: root.weatherRequested()
+        }
+    }
+
+    Rectangle {
+        x: root.width - 204
         y: 10
-        width: 82
+        width: 78
         height: 30
         radius: 15
         color: root.connected ? (root.dayMode ? "#e4f7ef" : "#112b27") : style.inner
@@ -92,7 +153,7 @@ Item {
     }
 
     Rectangle {
-        x: 684
+        x: root.width - 116
         y: 6
         width: 38
         height: 38
@@ -116,7 +177,7 @@ Item {
     }
 
     Rectangle {
-        x: 748
+        x: root.width - 52
         y: 4
         width: 42
         height: 42

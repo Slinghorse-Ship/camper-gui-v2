@@ -48,7 +48,8 @@ Item {
                 climate: parseFragment(climateState),
                 lights: parseFragment(lightsState),
                 vehicle: parseFragment(vehicleState),
-                power: parseFragment(powerState)
+                power: parseFragment(powerState),
+                operations: parseFragment(operationsState)
             });
         stateData = next;
         if (connected) {
@@ -125,6 +126,16 @@ Item {
         });
     }
 
+    function setFavoriteIds(ids) {
+        command("settings", "patch", null, {
+            patch: {
+                ui: {
+                    favoriteIds: ids
+                }
+            }
+        });
+    }
+
     VeQuickItem {
         id: apiConnected
         uid: root.serviceUid + "/Status/ApiConnected"
@@ -176,6 +187,12 @@ Item {
     VeQuickItem {
         id: powerState
         uid: root.serviceUid + "/State/Power"
+        onValueChanged: root.scheduleRebuild()
+    }
+
+    VeQuickItem {
+        id: operationsState
+        uid: root.serviceUid + "/State/Operations"
         onValueChanged: root.scheduleRebuild()
     }
 
