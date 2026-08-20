@@ -46,10 +46,12 @@ class CamperV2PanelsContractTest(unittest.TestCase):
             "stale",
             "station",
             "sun",
-            "sunriseUtc",
-            "sunsetUtc",
+            "riseUtc",
+            "setUtc",
         ):
             self.assertIn(field, source + chart)
+        self.assertNotIn("sunriseUtc", source + chart)
+        self.assertNotIn("sunsetUtc", source + chart)
         self.assertIn("currentFromHourly", source)
         self.assertIn("Quelle: Deutscher Wetterdienst", source)
         self.assertNotIn("XMLHttpRequest", source + chart)

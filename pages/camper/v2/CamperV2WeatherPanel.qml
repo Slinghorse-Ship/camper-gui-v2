@@ -102,8 +102,8 @@ Item {
 
     function sunLabel() {
         const sun = weather.sun || ({});
-        const rise = new Date(sun.sunriseUtc);
-        const set = new Date(sun.sunsetUtc);
+        const rise = new Date(sun.riseUtc);
+        const set = new Date(sun.setUtc);
         if (isNaN(rise.getTime()) || isNaN(set.getTime()))
             return "";
         return "Sonne ↑" + Qt.formatTime(rise, "hh:mm") + " ↓" + Qt.formatTime(set, "hh:mm");

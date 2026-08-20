@@ -368,8 +368,9 @@ Window {
                     name: "Berlin-Tempelhof"
                 },
                 sun: {
-                    sunriseUtc: new Date(base.getTime() + 6 * 3600000).toISOString(),
-                    sunsetUtc: new Date(base.getTime() + 20 * 3600000).toISOString()
+                    riseUtc: new Date(base.getTime() + 6 * 3600000).toISOString(),
+                    setUtc: new Date(base.getTime() + 20 * 3600000).toISOString(),
+                    origin: "calculated"
                 },
                 hourly: hourly,
                 daily: daily
