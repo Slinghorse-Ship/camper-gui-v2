@@ -6,6 +6,7 @@ import unittest
 
 ROOT = Path(__file__).parents[1]
 MODULE = ROOT / "cmake" / "ModuleVenus_Sources.cmake"
+MODULE_INSTALL = ROOT / "cmake" / "ModuleVenus.cmake"
 SHELL = ROOT / "pages" / "camper" / "CamperShell.qml"
 V2_SHELL = ROOT / "pages" / "camper" / "v2" / "CamperV2Shell.qml"
 HOST = ROOT / "pages" / "camper" / "v2" / "CamperV2PanelHost.qml"
@@ -98,6 +99,7 @@ class CamperV2PanelsContractTest(unittest.TestCase):
 
     def test_v1_is_not_instantiated_or_packaged(self):
         module = MODULE.read_text(encoding="utf-8")
+        module_install = MODULE_INSTALL.read_text(encoding="utf-8")
         shell = SHELL.read_text(encoding="utf-8")
         settings = SETTINGS.read_text(encoding="utf-8")
         preview = PREVIEW.read_text(encoding="utf-8")
@@ -118,6 +120,11 @@ class CamperV2PanelsContractTest(unittest.TestCase):
         self.assertIn("CamperV2Shell", shell)
         self.assertNotIn("CamperDesignSettings", shell + settings + preview)
         self.assertNotIn("ListRadioButtonGroup", settings)
+        self.assertIn('PATTERN "camper" EXCLUDE', module_install)
+        self.assertIn("FILES components/camper/CamperViewport.qml", module_install)
+        self.assertIn("DIRECTORY components/camper/v2", module_install)
+        self.assertIn("FILES pages/camper/CamperShell.qml", module_install)
+        self.assertIn("DIRECTORY pages/camper/v2", module_install)
 
     def test_new_runtime_files_are_in_the_shared_gx_wasm_qml_module(self):
         source = MODULE.read_text(encoding="utf-8")

@@ -46,12 +46,32 @@ if (${VENUS_GX_BUILD})
             FrameRateVisualizer.qml
             Global.qml
         DESTINATION ${CMAKE_INSTALL_BINDIR}/Victron/VenusOS)
+    # The custom CamperControl release is V2-only. Keep the V1 source in Git for
+    # history, but do not copy it into the native GX payload. The shared viewport,
+    # shell and backend adapters remain, together with the complete V2 tree.
     install(
-        DIRECTORY
-            components
-            data
-            pages
+        DIRECTORY components
+        DESTINATION ${CMAKE_INSTALL_BINDIR}/Victron/VenusOS
+        PATTERN "camper" EXCLUDE)
+    install(
+        FILES components/camper/CamperViewport.qml
+        DESTINATION ${CMAKE_INSTALL_BINDIR}/Victron/VenusOS/components/camper)
+    install(
+        DIRECTORY components/camper/v2
+        DESTINATION ${CMAKE_INSTALL_BINDIR}/Victron/VenusOS/components/camper)
+    install(
+        DIRECTORY data
         DESTINATION ${CMAKE_INSTALL_BINDIR}/Victron/VenusOS)
+    install(
+        DIRECTORY pages
+        DESTINATION ${CMAKE_INSTALL_BINDIR}/Victron/VenusOS
+        PATTERN "camper" EXCLUDE)
+    install(
+        FILES pages/camper/CamperShell.qml
+        DESTINATION ${CMAKE_INSTALL_BINDIR}/Victron/VenusOS/pages/camper)
+    install(
+        DIRECTORY pages/camper/v2
+        DESTINATION ${CMAKE_INSTALL_BINDIR}/Victron/VenusOS/pages/camper)
     install(
         FILES
             ${PROJECT_SOURCE_DIR}/tools/gui-v2-plugin-compiler.py
