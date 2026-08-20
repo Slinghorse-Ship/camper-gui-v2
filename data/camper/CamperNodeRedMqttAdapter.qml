@@ -1,8 +1,8 @@
 /*
-** CamperControl transport for WASM (local Remote Console and VRM).
+** CamperControl transport for native GX and WASM (local/VRM Remote Console).
 **
-** VeQuickItem uses gui-v2's existing MQTT producer. On VRM this means the
-** documented N/R/W bridge; no browser request is made to GX port 1880/1881.
+** VeQuickItem uses the native D-Bus producer on GX and gui-v2's existing MQTT
+** producer in WASM. On VRM this is the N/R/W bridge; no UI polls Node-RED.
 */
 
 import QtQuick
@@ -20,14 +20,14 @@ Item {
     readonly property string serviceUid: BackendConnection.serviceUidFromName("com.victronenergy.campercontrol", 0)
     readonly property bool transportReady: BackendConnection.state === BackendConnection.Ready
     readonly property bool commandsAllowed: !BackendConnection.vrm || BackendConnection.vrmPortalMode === BackendConnection.Full
-    readonly property bool connected: pollingEnabled
-            && transportReady
-            && apiConnected.valid
-            && Number(apiConnected.value) === 1
-            && uiState.valid
+    readonly property bool connected: pollingEnabled && transportReady && apiConnected.valid && Number(apiConnected.value) === 1 && uiState.valid
 
     function parseFragment(item) {
         if (!item.valid || typeof item.value !== "string" || item.value.length === 0) {
+            return ({});
+        }
+        if (item.value.length > 131072) {
+            root.errorText = "Camper-Daten überschreiten das Größenlimit";
             return ({});
         }
         try {
@@ -41,22 +41,26 @@ Item {
 
     function rebuildState() {
         const next = ({
-            ui: parseFragment(uiState),
-            energy: parseFragment(energyState),
-            water: parseFragment(waterState),
-            climate: parseFragment(climateState),
-            lights: parseFragment(lightsState),
-            vehicle: parseFragment(vehicleState),
-            power: parseFragment(powerState)
-        });
+                ui: parseFragment(uiState),
+                energy: parseFragment(energyState),
+                water: parseFragment(waterState),
+                climate: parseFragment(climateState),
+                lights: parseFragment(lightsState),
+                vehicle: parseFragment(vehicleState),
+                power: parseFragment(powerState)
+            });
         stateData = next;
         if (connected) {
             errorText = commandsAllowed ? "" : "VRM ist auf Nur Lesen eingestellt";
         } else if (transportReady) {
-            errorText = bridgeError.valid && String(bridgeError.value).length > 0
-                    ? String(bridgeError.value)
-                    : "Camper-D-Bus-Brücke nicht verbunden";
+            errorText = bridgeError.valid && String(bridgeError.value).length > 0 ? String(bridgeError.value) : "Camper-D-Bus-Brücke nicht verbunden";
         }
+    }
+
+    function scheduleRebuild() {
+        // The bridge updates several fragments together. Coalesce that burst
+        // so one logical snapshot causes one set of JSON parses and bindings.
+        rebuildTimer.restart();
     }
 
     function command(target, action, value, extra) {
@@ -110,55 +114,55 @@ Item {
     VeQuickItem {
         id: apiConnected
         uid: root.serviceUid + "/Status/ApiConnected"
-        onValueChanged: root.rebuildState()
+        onValueChanged: root.scheduleRebuild()
     }
 
     VeQuickItem {
         id: bridgeError
         uid: root.serviceUid + "/Status/LastError"
-        onValueChanged: root.rebuildState()
+        onValueChanged: root.scheduleRebuild()
     }
 
     VeQuickItem {
         id: uiState
         uid: root.serviceUid + "/State/Ui"
-        onValueChanged: root.rebuildState()
+        onValueChanged: root.scheduleRebuild()
     }
 
     VeQuickItem {
         id: energyState
         uid: root.serviceUid + "/State/Energy"
-        onValueChanged: root.rebuildState()
+        onValueChanged: root.scheduleRebuild()
     }
 
     VeQuickItem {
         id: waterState
         uid: root.serviceUid + "/State/Water"
-        onValueChanged: root.rebuildState()
+        onValueChanged: root.scheduleRebuild()
     }
 
     VeQuickItem {
         id: climateState
         uid: root.serviceUid + "/State/Climate"
-        onValueChanged: root.rebuildState()
+        onValueChanged: root.scheduleRebuild()
     }
 
     VeQuickItem {
         id: lightsState
         uid: root.serviceUid + "/State/Lights"
-        onValueChanged: root.rebuildState()
+        onValueChanged: root.scheduleRebuild()
     }
 
     VeQuickItem {
         id: vehicleState
         uid: root.serviceUid + "/State/Vehicle"
-        onValueChanged: root.rebuildState()
+        onValueChanged: root.scheduleRebuild()
     }
 
     VeQuickItem {
         id: powerState
         uid: root.serviceUid + "/State/Power"
-        onValueChanged: root.rebuildState()
+        onValueChanged: root.scheduleRebuild()
     }
 
     VeQuickItem {
@@ -166,18 +170,23 @@ Item {
         uid: root.serviceUid + "/Command"
     }
 
+    Timer {
+        id: rebuildTimer
+        interval: 20
+        repeat: false
+        onTriggered: root.rebuildState()
+    }
+
     VeQuickItem {
         id: commandResult
         uid: root.serviceUid + "/LastCommandResult"
         onValueChanged: {
-            if (!valid || typeof value !== "string" || value.length === 0) {
+            if (!valid || typeof value !== "string" || value.length === 0 || value.length > 16384) {
                 return;
             }
             try {
                 root.lastCommandResult = JSON.parse(value);
-                root.errorText = root.lastCommandResult.ok === false
-                        ? String(root.lastCommandResult.error || "Befehl fehlgeschlagen")
-                        : "";
+                root.errorText = root.lastCommandResult.ok === false ? String(root.lastCommandResult.error || "Befehl fehlgeschlagen") : "";
             } catch (error) {
                 root.errorText = "Camper-Befehlsantwort ungültig";
             }
@@ -187,10 +196,10 @@ Item {
     Connections {
         target: BackendConnection
         function onStateChanged() {
-            root.rebuildState();
+            root.scheduleRebuild();
         }
         function onVrmPortalModeChanged() {
-            root.rebuildState();
+            root.scheduleRebuild();
         }
     }
 

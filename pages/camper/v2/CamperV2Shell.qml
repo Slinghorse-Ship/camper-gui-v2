@@ -6,8 +6,9 @@ Rectangle {
 
     required property var adapter
     property int currentPage: 0
-    property alias energyPane: energyView.energyPane
+    property int energyPane: 0
     property alias activePanel: panelHost.activePanel
+    property bool lightsRightView: false
     property bool dayMode: false
     property url darkLogoSource: "qrc:/images/camper_transit_line_dark.png"
     property url lightLogoSource: "qrc:/images/camper_transit_line_light.png"
@@ -55,48 +56,88 @@ Rectangle {
         width: 800
         height: 342
 
-        CamperV2Home {
+        Loader {
             anchors.fill: parent
-            visible: root.currentPage === 0
-            adapter: root.adapter
-            dayMode: root.dayMode
-            onPageRequested: page => root.currentPage = page
-            onEditQuickAccessRequested: panelHost.openQuick(true)
+            active: root.currentPage === 0
+            sourceComponent: homePage
         }
-        CamperV2Lights {
+        Loader {
             anchors.fill: parent
-            visible: root.currentPage === 1
-            adapter: root.adapter
-            dayMode: root.dayMode
-            leftVehicleSource: root.leftVehicleSource
-            rightVehicleSource: root.rightVehicleSource
+            active: root.currentPage === 1
+            sourceComponent: lightsPage
         }
-        CamperV2Climate {
+        Loader {
             anchors.fill: parent
-            visible: root.currentPage === 2
-            adapter: root.adapter
-            dayMode: root.dayMode
+            active: root.currentPage === 2
+            sourceComponent: climatePage
         }
-        CamperV2Energy {
-            id: energyView
+        Loader {
             anchors.fill: parent
-            visible: root.currentPage === 3
-            adapter: root.adapter
-            dayMode: root.dayMode
+            active: root.currentPage === 3
+            sourceComponent: energyPage
         }
-        CamperV2Water {
+        Loader {
             anchors.fill: parent
-            visible: root.currentPage === 4
-            adapter: root.adapter
-            dayMode: root.dayMode
+            active: root.currentPage === 4
+            sourceComponent: waterPage
         }
-        CamperV2System {
+        Loader {
             anchors.fill: parent
-            visible: root.currentPage === 5
-            adapter: root.adapter
-            dayMode: root.dayMode
-            onOpenVictronSettings: root.openVictronSettings()
-            onCloseRequested: root.closeRequested()
+            active: root.currentPage === 5
+            sourceComponent: systemPage
+        }
+
+        Component {
+            id: homePage
+            CamperV2Home {
+                adapter: root.adapter
+                dayMode: root.dayMode
+                onPageRequested: page => root.currentPage = page
+                onEditQuickAccessRequested: panelHost.openQuick(true)
+            }
+        }
+        Component {
+            id: lightsPage
+            CamperV2Lights {
+                adapter: root.adapter
+                dayMode: root.dayMode
+                rightView: root.lightsRightView
+                leftVehicleSource: root.leftVehicleSource
+                rightVehicleSource: root.rightVehicleSource
+                onRightViewChanged: root.lightsRightView = rightView
+            }
+        }
+        Component {
+            id: climatePage
+            CamperV2Climate {
+                adapter: root.adapter
+                dayMode: root.dayMode
+            }
+        }
+        Component {
+            id: energyPage
+            CamperV2Energy {
+                adapter: root.adapter
+                dayMode: root.dayMode
+                energyPane: root.energyPane
+                onEnergyPaneChanged: root.energyPane = energyPane
+            }
+        }
+        Component {
+            id: waterPage
+            CamperV2Water {
+                adapter: root.adapter
+                dayMode: root.dayMode
+            }
+        }
+        Component {
+            id: systemPage
+            CamperV2System {
+                adapter: root.adapter
+                dayMode: root.dayMode
+                onOpenVictronSettings: root.openVictronSettings()
+                onCloseRequested: root.closeRequested()
+            }
         }
     }
 

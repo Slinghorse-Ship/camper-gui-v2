@@ -1,8 +1,9 @@
 /*
 ** Transport facade for CamperControl's validated API v2.
 **
-** Native GX keeps the local loopback HTTP API. WASM always uses gui-v2's
-** existing MQTT backend so the same code works both on LAN and through VRM.
+** The Cerbo service is the single reader of Node-RED state. Native GX reads
+** its D-Bus values and WASM receives the same values through Victron's MQTT
+** bridge. This avoids a second one-second HTTP poll and duplicate JSON work.
 */
 
 import QtQuick
@@ -37,17 +38,12 @@ Item {
 
     Loader {
         id: transport
-        sourceComponent: Qt.platform.os === "wasm" ? mqttTransport : httpTransport
+        sourceComponent: bridgeTransport
         onLoaded: item.pollingEnabled = Qt.binding(() => root.pollingEnabled)
     }
 
     Component {
-        id: httpTransport
-        CamperNodeRedHttpAdapter {}
-    }
-
-    Component {
-        id: mqttTransport
+        id: bridgeTransport
         CamperNodeRedMqttAdapter {}
     }
 }

@@ -7,6 +7,7 @@ Item {
     required property var adapter
     property bool dayMode: false
     property int activePanel: closedPanel
+    property bool quickEditorRequested: false
 
     readonly property int closedPanel: 0
     readonly property int quickPanel: 1
@@ -15,8 +16,8 @@ Item {
     readonly property real swipeThreshold: 48
 
     function openQuick(openEditor) {
+        quickEditorRequested = openEditor === true;
         activePanel = quickPanel;
-        quickContent.editing = openEditor === true;
     }
 
     function openWeather() {
@@ -188,27 +189,41 @@ Item {
             }
         }
 
-        CamperV2QuickPanel {
-            id: quickContent
-            objectName: "camperV2QuickPanel"
+        Loader {
             x: 16
             y: 64
             width: parent.width - 32
             height: parent.height - 76
-            visible: root.activePanel === root.quickPanel
-            adapter: root.adapter
-            dayMode: root.dayMode
+            active: root.activePanel === root.quickPanel
+            sourceComponent: quickPanelContent
         }
 
-        CamperV2WeatherPanel {
-            objectName: "camperV2WeatherPanel"
+        Loader {
             x: 16
             y: 64
             width: parent.width - 32
             height: parent.height - 76
-            visible: root.activePanel === root.weatherPanel
-            adapter: root.adapter
-            dayMode: root.dayMode
+            active: root.activePanel === root.weatherPanel
+            sourceComponent: weatherPanelContent
+        }
+
+        Component {
+            id: quickPanelContent
+            CamperV2QuickPanel {
+                objectName: "camperV2QuickPanel"
+                adapter: root.adapter
+                dayMode: root.dayMode
+                editing: root.quickEditorRequested
+            }
+        }
+
+        Component {
+            id: weatherPanelContent
+            CamperV2WeatherPanel {
+                objectName: "camperV2WeatherPanel"
+                adapter: root.adapter
+                dayMode: root.dayMode
+            }
         }
     }
 }

@@ -27,6 +27,12 @@ Item {
             errorText = transportReady ? "Wetterdaten noch nicht verfügbar" : "Camper-D-Bus-Brücke nicht verbunden";
             return;
         }
+        if (typeof weatherState.value === "string" && weatherState.value.length > 16384) {
+            weatherData = ({});
+            hasPayload = false;
+            errorText = "Camper-Wetterdaten überschreiten das Größenlimit";
+            return;
+        }
 
         try {
             const value = typeof weatherState.value === "string" ? JSON.parse(weatherState.value) : weatherState.value;

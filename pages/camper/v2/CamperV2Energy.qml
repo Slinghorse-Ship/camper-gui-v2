@@ -13,12 +13,12 @@ Item {
     readonly property var snapshot: adapter.stateData || ({})
     readonly property var energy: snapshot.energy || ({})
     readonly property var solar: energy.solar || ({})
-    readonly property var chargers: solar.chargers || []
+    readonly property var chargers: solar.chargers && Array.isArray(solar.chargers) ? solar.chargers.slice(0, 8) : []
     readonly property var indevolt: energy.indevolt || ({})
     readonly property var orion: energy.orion || ({})
     readonly property var power: snapshot.power || ({})
     readonly property var inverter: power.inverter || ({})
-    readonly property var dcChannels: power.dcChannels || []
+    readonly property var dcChannels: power.dcChannels && Array.isArray(power.dcChannels) ? power.dcChannels.slice(0, 16) : []
 
     CamperV2Style {
         id: style

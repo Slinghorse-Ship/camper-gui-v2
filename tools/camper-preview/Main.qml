@@ -24,9 +24,12 @@ Window {
     property bool previewV2DayMode: false
     property int previewPanel: 0
     property bool previewCustomCommandsAllowed: true
+    property bool previewAllLightsOn: false
+    property bool previewLightsRightView: false
     readonly property int previewActivePanel: v2Shell.activePanel
 
     onPreviewPanelChanged: v2Shell.activePanel = previewPanel
+    onPreviewLightsRightViewChanged: v2Shell.lightsRightView = previewLightsRightView
 
     width: 800
     height: 480
@@ -188,9 +191,9 @@ Window {
                 },
                 vehicle: {
                     highBeam: {
-                        on: window.previewHighBeamVehicleOn || window.previewHighBeamManualOn,
+                        on: window.previewAllLightsOn || window.previewHighBeamVehicleOn || window.previewHighBeamManualOn,
                         vehicleOn: window.previewHighBeamVehicleOn,
-                        manualOn: window.previewHighBeamManualOn,
+                        manualOn: window.previewAllLightsOn || window.previewHighBeamManualOn,
                         outputOnline: window.previewHighBeamOutputOnline,
                         outputChannel: 3
                     }
@@ -206,7 +209,7 @@ Window {
                         {
                             id: "outside_left",
                             channel: 8,
-                            on: false,
+                            on: window.previewAllLightsOn,
                             dimming: 80
                         },
                         {
@@ -218,7 +221,7 @@ Window {
                         {
                             id: "outside_rear",
                             channel: 10,
-                            on: false,
+                            on: window.previewAllLightsOn,
                             dimming: 90
                         },
                         {

@@ -22,6 +22,8 @@ def main() -> int:
 	energy_pane = int(sys.argv[3]) if len(sys.argv) > 3 else 0
 	day_mode = bool(int(sys.argv[4])) if len(sys.argv) > 4 else False
 	panel = int(sys.argv[5]) if len(sys.argv) > 5 else 0
+	all_lights = bool(int(sys.argv[6])) if len(sys.argv) > 6 else False
+	right_view = bool(int(sys.argv[7])) if len(sys.argv) > 7 else False
 	output_path.parent.mkdir(parents=True, exist_ok=True)
 	print(f"Loading {qml_path}", flush=True)
 
@@ -41,6 +43,8 @@ def main() -> int:
 	window.setProperty("previewV2EnergyPane", energy_pane)
 	window.setProperty("previewV2DayMode", day_mode)
 	window.setProperty("previewPanel", panel)
+	window.setProperty("previewAllLightsOn", all_lights)
+	window.setProperty("previewLightsRightView", right_view)
 
 	def capture() -> None:
 		print("Capturing frame", flush=True)

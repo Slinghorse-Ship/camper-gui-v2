@@ -10,8 +10,8 @@ Item {
     property bool dayMode: false
 
     readonly property var weather: adapter.weatherData || ({})
-    readonly property var hourly: weather.hourly || []
-    readonly property var daily: weather.daily || []
+    readonly property var hourly: weather.hourly && Array.isArray(weather.hourly) ? weather.hourly.slice(0, 48) : []
+    readonly property var daily: weather.daily && Array.isArray(weather.daily) ? weather.daily.slice(0, 6) : []
     readonly property var currentWeather: weather.current || currentFromHourly()
 
     CamperV2Style {

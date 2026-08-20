@@ -55,33 +55,75 @@ Canvas {
         ctx.fill();
     }
 
+    function sourceX(value) {
+        return width * value / 560;
+    }
+
+    function sourceY(value) {
+        return height * value / 360;
+    }
+
+    function fixtureLine(ctx, x1, x2, y, sourceWidth, red, green, blue, strength) {
+        const centerX = sourceX((x1 + x2) / 2);
+        const centerY = sourceY(y);
+        glow(ctx, centerX, centerY, sourceX(18), red, green, blue, strength * .46);
+        ctx.save();
+        ctx.lineCap = "round";
+        ctx.lineWidth = Math.max(2, sourceY(sourceWidth));
+        ctx.strokeStyle = Qt.rgba(red, green, blue, Math.min(.98, strength));
+        ctx.shadowColor = Qt.rgba(red, green, blue, .92);
+        ctx.shadowBlur = sourceX(8);
+        ctx.beginPath();
+        ctx.moveTo(sourceX(x1), centerY);
+        ctx.lineTo(sourceX(x2), centerY);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function fixtureSquare(ctx, x, y, size, red, green, blue, strength) {
+        const centerX = sourceX(x);
+        const centerY = sourceY(y);
+        const side = Math.max(3, sourceX(size));
+        glow(ctx, centerX, centerY, sourceX(19), red, green, blue, strength * .5);
+        ctx.save();
+        ctx.fillStyle = Qt.rgba(red, green, blue, Math.min(.98, strength));
+        ctx.shadowColor = Qt.rgba(red, green, blue, .94);
+        ctx.shadowBlur = sourceX(9);
+        ctx.fillRect(centerX - side / 2, centerY - side / 2, side, side);
+        ctx.restore();
+    }
+
     onPaint: {
         const ctx = getContext("2d");
         ctx.clearRect(0, 0, width, height);
 
         if (insideOn)
-            glow(ctx, width * (rightView ? .39 : .69), height * .49, width * .16, 1, .75, .36, .20 + insideLevel / 180);
+            glow(ctx, sourceX(rightView ? 165 : 420), sourceY(170), sourceX(90), 1, .75, .36, .20 + insideLevel / 180);
 
         if (sideOn) {
-            const firstX = rightView ? .126 : .692;
-            const secondX = rightView ? .281 : .843;
-            glow(ctx, width * firstX, height * .12, width * (.032 + sideLevel / 3000), .92, .98, 1, .40 + sideLevel / 145);
-            glow(ctx, width * secondX, height * .11, width * (.032 + sideLevel / 3000), .92, .98, 1, .40 + sideLevel / 145);
+            const strength = .52 + sideLevel / 220;
+            if (rightView) {
+                fixtureLine(ctx, 65, 73, 45, 5, .92, .98, 1, strength);
+                fixtureLine(ctx, 154, 162, 41, 5, .92, .98, 1, strength);
+            } else {
+                fixtureLine(ctx, 374, 383, 33, 5, .92, .98, 1, strength);
+                fixtureLine(ctx, 458, 466, 36, 5, .92, .98, 1, strength);
+            }
         }
 
         if (rearOn)
-            glow(ctx, width * (rightView ? .087 : .791), height * .055, width * (.035 + rearLevel / 3000), .92, .98, 1, .42 + rearLevel / 140);
+            fixtureSquare(ctx, rightView ? 52 : 437, 12, 7, .92, .98, 1, .56 + rearLevel / 210);
 
-        const frontX1 = width * (rightView ? .457 : .281);
-        const frontX2 = width * (rightView ? .753 : .596);
-        const frontY = height * (rightView ? .095 : .132);
+        const frontX1 = sourceX(rightView ? 260 : 166);
+        const frontX2 = sourceX(rightView ? 407 : 339);
+        const frontY = sourceY(rightView ? 39 : 50);
         if (highBeamOn) {
             ctx.save();
             ctx.lineCap = "round";
-            ctx.lineWidth = 9;
+            ctx.lineWidth = Math.max(5, sourceY(8));
             ctx.strokeStyle = "rgba(108,198,255,.95)";
             ctx.shadowColor = "#49aef4";
-            ctx.shadowBlur = 22;
+            ctx.shadowBlur = sourceX(24);
             ctx.beginPath();
             ctx.moveTo(frontX1, frontY);
             ctx.lineTo(frontX2, frontY);
@@ -91,13 +133,13 @@ Canvas {
         if (frontOn && (!frontAmber || blinkVisible)) {
             ctx.save();
             ctx.lineCap = "round";
-            ctx.lineWidth = 3;
+            ctx.lineWidth = Math.max(2, sourceY(3));
             ctx.strokeStyle = frontAmber ? "rgba(255,143,18,.95)" : "rgba(250,253,255,.95)";
             ctx.shadowColor = frontAmber ? "#ff8f12" : "#ffffff";
-            ctx.shadowBlur = 7 + frontLevel / 9;
+            ctx.shadowBlur = sourceX(8 + frontLevel / 10);
             ctx.beginPath();
-            ctx.moveTo(frontX1, frontY + 2);
-            ctx.lineTo(frontX2, frontY + 2);
+            ctx.moveTo(frontX1, frontY + sourceY(2));
+            ctx.lineTo(frontX2, frontY + sourceY(2));
             ctx.stroke();
             ctx.restore();
         }

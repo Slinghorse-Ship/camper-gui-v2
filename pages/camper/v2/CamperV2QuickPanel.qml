@@ -13,7 +13,7 @@ Item {
 
     readonly property var snapshot: adapter.stateData || ({})
     readonly property var quickAccess: snapshot.ui && snapshot.ui.quickAccess ? snapshot.ui.quickAccess.slice(0, 4) : []
-    readonly property var quickOptions: snapshot.ui && snapshot.ui.quickAccessOptions ? snapshot.ui.quickAccessOptions : []
+    readonly property var quickOptions: snapshot.ui && snapshot.ui.quickAccessOptions ? snapshot.ui.quickAccessOptions.slice(0, 32) : []
 
     CamperV2Style {
         id: style

@@ -14,7 +14,7 @@ Item {
     property string selectedLightId: "inside_main"
 
     readonly property var snapshot: adapter.stateData || ({})
-    readonly property var lightItems: snapshot.lights && snapshot.lights.items ? snapshot.lights.items : []
+    readonly property var lightItems: snapshot.lights && snapshot.lights.items ? snapshot.lights.items.slice(0, 16) : []
     readonly property var highBeam: snapshot.vehicle && snapshot.vehicle.highBeam ? snapshot.vehicle.highBeam : ({})
 
     CamperV2Style {
@@ -70,6 +70,48 @@ Item {
         if (available(other) && other.on === true)
             setLight(other, false);
         toggleLight(target);
+    }
+
+    function pointDistance(x1, y1, x2, y2) {
+        const dx = x1 - x2;
+        const dy = y1 - y2;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function lineDistance(x, y, x1, x2, lineY) {
+        const nearestX = Math.max(x1, Math.min(x2, x));
+        return pointDistance(x, y, nearestX, lineY);
+    }
+
+    function handleVehicleLampClick(x, y, itemWidth, itemHeight) {
+        const sourceX = x * 560 / itemWidth;
+        const sourceY = y * 360 / itemHeight;
+        const sideDistance = rightView ? Math.min(pointDistance(sourceX, sourceY, 69, 45), pointDistance(sourceX, sourceY, 158, 41)) : Math.min(pointDistance(sourceX, sourceY, 378, 33), pointDistance(sourceX, sourceY, 462, 36));
+        const rearDistance = pointDistance(sourceX, sourceY, rightView ? 52 : 437, 12);
+        const highBeamDistance = lineDistance(sourceX, sourceY, rightView ? 260 : 166, rightView ? 407 : 339, rightView ? 39 : 50);
+        const nearest = Math.min(sideDistance, rearDistance, highBeamDistance);
+
+        // Keep the hit areas forgiving without turning blank roof/body pixels
+        // into hidden switches. 34 source pixels equal about 27 px at 800x480.
+        if (nearest > 34)
+            return;
+        if (nearest === rearDistance) {
+            if (available(rear)) {
+                selectedLightId = rear.id;
+                toggleLight(rear);
+            }
+        } else if (nearest === sideDistance) {
+            const target = rightView ? rightSide : leftSide;
+            if (available(target)) {
+                selectedLightId = target.id;
+                toggleLight(target);
+            }
+        } else if (adapter.customCommandsAllowed === true && highBeamAvailable && highBeamChannel > 0) {
+            selectedLightId = "high_beam_manual";
+            adapter.command("starpower", "set", highBeamManualOn ? 0 : 1, {
+                channel: highBeamChannel
+            });
+        }
     }
 
     function runScene(sceneId) {
@@ -183,48 +225,12 @@ Item {
                 }
             }
             MouseArea {
-                x: parent.width * (root.rightView ? .077 : .643)
-                y: parent.height * (root.rightView ? .065 : .036)
-                width: parent.width * .25
-                height: parent.height * .17
-                enabled: root.available(root.rightView ? root.rightSide : root.leftSide)
-                onClicked: {
-                    const target = root.rightView ? root.rightSide : root.leftSide;
-                    root.selectedLightId = target.id;
-                    root.toggleLight(target);
-                }
-            }
-            MouseArea {
-                x: parent.width * (root.rightView ? .036 : .74)
+                x: 0
                 y: 0
-                width: parent.width * .12
-                height: parent.height * .14
-                enabled: root.available(root.rear)
-                onClicked: {
-                    root.selectedLightId = root.rear.id;
-                    root.toggleLight(root.rear);
-                }
-            }
-            MouseArea {
-                x: parent.width * (root.rightView ? .457 : .281)
-                y: parent.height * (root.rightView ? .039 : .078)
-                width: parent.width * .315
-                height: parent.height * .145
-                enabled: root.adapter.customCommandsAllowed === true && root.highBeamAvailable && root.highBeamChannel > 0
-                onClicked: {
-                    root.selectedLightId = "high_beam_manual";
-                    root.adapter.command("starpower", "set", root.highBeamManualOn ? 0 : 1, {
-                        channel: root.highBeamChannel
-                    });
-                }
-            }
-            MouseArea {
-                x: parent.width * (root.rightView ? .457 : .281)
-                y: parent.height * (root.rightView ? .19 : .22)
-                width: parent.width * .315
-                height: parent.height * .12
-                enabled: root.available(root.frontWhite)
-                onClicked: root.setFrontMode("white")
+                width: parent.width
+                height: parent.height * .24
+                enabled: root.adapter.customCommandsAllowed === true
+                onClicked: mouse => root.handleVehicleLampClick(mouse.x, mouse.y, width, parent.height)
             }
         }
 

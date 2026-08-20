@@ -13,7 +13,7 @@ WEATHER = ROOT / "data" / "camper" / "CamperWeatherAdapter.qml"
 
 
 class CamperVrmTransportContractTest(unittest.TestCase):
-    def test_wasm_uses_mqtt_service_instance_zero_and_seven_fragments(self):
+    def test_gx_and_wasm_use_bridge_service_instance_zero_and_seven_fragments(self):
         source = MQTT.read_text(encoding="utf-8")
         self.assertIn('serviceUidFromName("com.victronenergy.campercontrol", 0)', source)
         self.assertIn("BackendConnection.vrmPortalMode === BackendConnection.Full", source)
@@ -21,11 +21,23 @@ class CamperVrmTransportContractTest(unittest.TestCase):
         for section in ("Ui", "Energy", "Water", "Climate", "Lights", "Vehicle", "Power"):
             self.assertEqual(source.count(f'"/State/{section}"'), 1)
 
-    def test_facade_keeps_native_http_and_selects_mqtt_only_for_wasm(self):
+    def test_facade_uses_one_dbus_mqtt_transport_without_duplicate_http_poll(self):
         source = FACADE.read_text(encoding="utf-8")
-        self.assertIn('Qt.platform.os === "wasm" ? mqttTransport : httpTransport', source)
-        self.assertIn("CamperNodeRedHttpAdapter", source)
         self.assertIn("CamperNodeRedMqttAdapter", source)
+        self.assertNotIn("CamperNodeRedHttpAdapter", source)
+        self.assertNotIn("Qt.platform.os", source)
+        self.assertNotIn("XMLHttpRequest", source)
+
+        cmake = (ROOT / "cmake" / "ModuleVenus_Sources.cmake").read_text(encoding="utf-8")
+        self.assertIn("data/camper/CamperNodeRedMqttAdapter.qml", cmake)
+        self.assertNotIn("data/camper/CamperNodeRedHttpAdapter.qml", cmake)
+
+    def test_fragment_bursts_are_coalesced_before_rebuilding_state(self):
+        source = MQTT.read_text(encoding="utf-8")
+        self.assertIn("function scheduleRebuild()", source)
+        self.assertIn("id: rebuildTimer", source)
+        self.assertIn("interval: 20", source)
+        self.assertGreaterEqual(source.count("onValueChanged: root.scheduleRebuild()"), 9)
 
     def test_weather_is_a_separate_read_only_vequickitem_for_gx_and_wasm(self):
         source = WEATHER.read_text(encoding="utf-8")

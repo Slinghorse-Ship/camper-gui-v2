@@ -331,7 +331,6 @@ set (VictronVenusOS_QML_MODULE_SOURCES
     data/DataManager.qml
     data/camper/CamperBackendAdapter.qml
     data/camper/CamperNodeRedAdapter.qml
-    data/camper/CamperNodeRedHttpAdapter.qml
     data/camper/CamperNodeRedMqttAdapter.qml
     data/camper/CamperVictronAdapter.qml
     data/camper/CamperWeatherAdapter.qml
@@ -804,7 +803,6 @@ set(VictronVenusOS_RESOURCES
     images/alternator.svg
     images/breadcrumb_lhs.svg
     images/breadcrumb_rhs.svg
-    images/camper_logo.png
     images/camper_transit_line_dark.png
     images/camper_transit_line_light.png
     images/camper_v2_vehicle_left.png
