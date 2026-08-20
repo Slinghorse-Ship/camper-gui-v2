@@ -597,7 +597,7 @@ FocusScope {
 		border.color: "#45c9fa"
 		border.width: 2
 
-		CamperLineIcon {
+		CamperV2Icon {
 			x: 11
 			anchors.verticalCenter: parent.verticalCenter
 			width: 24

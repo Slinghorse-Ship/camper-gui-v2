@@ -100,6 +100,7 @@ class CamperV2PanelsContractTest(unittest.TestCase):
     def test_v1_is_not_instantiated_or_packaged(self):
         module = MODULE.read_text(encoding="utf-8")
         module_install = MODULE_INSTALL.read_text(encoding="utf-8")
+        main_view = (ROOT / "pages" / "MainView.qml").read_text(encoding="utf-8")
         shell = SHELL.read_text(encoding="utf-8")
         settings = SETTINGS.read_text(encoding="utf-8")
         preview = PREVIEW.read_text(encoding="utf-8")
@@ -125,6 +126,8 @@ class CamperV2PanelsContractTest(unittest.TestCase):
         self.assertIn("DIRECTORY components/camper/v2", module_install)
         self.assertIn("FILES pages/camper/CamperShell.qml", module_install)
         self.assertIn("DIRECTORY pages/camper/v2", module_install)
+        self.assertNotIn("CamperLineIcon {", main_view)
+        self.assertIn("CamperV2Icon {", main_view)
 
     def test_new_runtime_files_are_in_the_shared_gx_wasm_qml_module(self):
         source = MODULE.read_text(encoding="utf-8")
