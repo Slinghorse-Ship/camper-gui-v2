@@ -44,6 +44,7 @@ Window {
         readonly property bool customConnected: true
         readonly property bool customReadConnected: true
         readonly property bool customCommandsAllowed: window.previewCustomCommandsAllowed
+        readonly property bool remoteSession: false
         readonly property real batterySoc: 82
         readonly property real batteryVoltage: 12.7
         readonly property real solarPower: 486

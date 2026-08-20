@@ -14,6 +14,7 @@ Item {
     property bool pollingEnabled: true
     readonly property bool connected: transport.item ? transport.item.connected : false
     readonly property bool commandsAllowed: transport.item ? transport.item.commandsAllowed : false
+    readonly property bool remoteSession: transport.item ? transport.item.remoteSession : false
     readonly property var stateData: transport.item ? transport.item.stateData : ({})
     readonly property var lastCommandResult: transport.item ? transport.item.lastCommandResult : ({})
     readonly property string errorText: transport.item ? transport.item.errorText : "Camper-Transport startet"

@@ -13,6 +13,7 @@ Item {
     readonly property bool customReadConnected: custom.connected
     readonly property bool customCommandsAllowed: custom.connected && custom.commandsAllowed
     readonly property bool customConnected: customCommandsAllowed
+    readonly property bool remoteSession: custom.remoteSession
     readonly property var stateData: custom.stateData
     readonly property string errorText: custom.errorText
     readonly property var weatherData: weather.weatherData

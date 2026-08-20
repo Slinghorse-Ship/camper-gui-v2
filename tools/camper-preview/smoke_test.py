@@ -143,6 +143,13 @@ def main() -> int:
 	expect(window, "commandCount", previous_commands + 1)
 	expect_text(window, "lastCommandTarget", "starpower")
 
+	# Dragging previews locally but emits exactly one bounded command on release.
+	previous_commands = window.property("commandCount")
+	swipe(window, QPoint(500, 343), QPoint(700, 343))
+	expect(window, "commandCount", previous_commands + 1)
+	expect_text(window, "lastCommandTarget", "starpower")
+	expect_text(window, "lastCommandAction", "dim")
+
 	window.setProperty("previewHighBeamVehicleOn", True)
 	window.setProperty("previewHighBeamManualOn", False)
 	QGuiApplication.processEvents()

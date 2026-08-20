@@ -19,6 +19,7 @@ Item {
 
     readonly property string serviceUid: BackendConnection.serviceUidFromName("com.victronenergy.campercontrol", 0)
     readonly property bool transportReady: BackendConnection.state === BackendConnection.Ready
+    readonly property bool remoteSession: BackendConnection.vrm
     readonly property bool commandsAllowed: !BackendConnection.vrm || BackendConnection.vrmPortalMode === BackendConnection.Full
     readonly property bool connected: pollingEnabled && transportReady && apiConnected.valid && Number(apiConnected.value) === 1 && uiState.valid
 
@@ -63,6 +64,12 @@ Item {
         rebuildTimer.restart();
     }
 
+    function isRemoteStarlinkOff(target, action, value, extra) {
+        const fields = extra || ({});
+        const off = value === false || Number(value) === 0;
+        return remoteSession && target === "starpower" && action === "set" && Number(fields.channel) === 5 && off;
+    }
+
     function command(target, action, value, extra) {
         if (!connected) {
             errorText = "Camper-D-Bus-Brücke nicht verbunden";
@@ -70,6 +77,10 @@ Item {
         }
         if (!commandsAllowed) {
             errorText = "VRM ist auf Nur Lesen eingestellt";
+            return;
+        }
+        if (isRemoteStarlinkOff(target, action, value, extra)) {
+            errorText = "Starlink kann über VRM nicht ausgeschaltet werden";
             return;
         }
 
@@ -81,6 +92,9 @@ Item {
         body.target = target;
         body.action = action;
         body.value = value;
+        // The Cerbo validates this origin again before touching hardware. It
+        // prevents a remote Starlink-off command from severing its own link.
+        body.origin = remoteSession ? "vrm" : "gx";
         requestSequence += 1;
         body.requestId = "gui-v2-mqtt-" + new Date().getTime() + "-" + requestSequence;
         commandItem.setValue(JSON.stringify(body));

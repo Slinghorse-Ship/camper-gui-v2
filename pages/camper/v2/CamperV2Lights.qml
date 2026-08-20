@@ -528,21 +528,23 @@ Item {
                 y: 7
                 width: 61
                 horizontalAlignment: Text.AlignRight
-                text: root.selectedDimmable && root.available(root.selectedLight) ? root.percent(root.selectedLight) + " %" : "–"
+                text: root.selectedDimmable && root.available(root.selectedLight) ? Math.round(dimmerRange.shownValue) + " %" : "–"
                 color: style.muted
                 font.pixelSize: 10
                 font.weight: Font.DemiBold
             }
             CamperV2Range {
+                id: dimmerRange
                 x: 7
                 y: 28
                 width: 301
                 height: 34
                 dayMode: root.dayMode
                 value: root.percent(root.selectedLight)
+                stepSize: 1
                 available: root.selectedDimmable && root.available(root.selectedLight)
                 accent: style.blue
-                onMoved: value => root.dimLight(root.selectedLight, value)
+                onCommitted: value => root.dimLight(root.selectedLight, value)
             }
         }
     }

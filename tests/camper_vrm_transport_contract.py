@@ -69,6 +69,20 @@ class CamperVrmTransportContractTest(unittest.TestCase):
         self.assertIn("customReadConnected", shell)
         self.assertIn("customReadConnected", system)
 
+    def test_vrm_cannot_turn_off_its_only_starlink_connection(self):
+        source = MQTT.read_text(encoding="utf-8")
+        self.assertIn("function isRemoteStarlinkOff(target, action, value, extra)", source)
+        self.assertIn('Number(fields.channel) === 5', source)
+        self.assertIn('body.origin = remoteSession ? "vrm" : "gx"', source)
+        self.assertIn('Starlink kann über VRM nicht ausgeschaltet werden', source)
+
+        energy = (ROOT / "pages" / "camper" / "v2" / "CamperV2Energy.qml").read_text(encoding="utf-8")
+        home = (ROOT / "pages" / "camper" / "v2" / "CamperV2Home.qml").read_text(encoding="utf-8")
+        quick = (ROOT / "pages" / "camper" / "v2" / "CamperV2QuickPanel.qml").read_text(encoding="utf-8")
+        self.assertIn("remoteProtected", energy)
+        self.assertIn("remoteProtected", home)
+        self.assertIn('Remote geschützt', quick)
+
 
 if __name__ == "__main__":
     unittest.main()

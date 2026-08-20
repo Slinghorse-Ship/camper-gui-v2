@@ -444,6 +444,7 @@ Item {
                     required property var modelData
                     readonly property bool isActive: modelData.active === true
                     readonly property bool isAvailable: modelData.available !== false
+                    readonly property bool remoteProtected: root.adapter.remoteSession === true && isActive && String(modelData.id || "").toLowerCase().indexOf("starlink") >= 0
 
                     width: 183
                     height: 120
@@ -483,9 +484,19 @@ Item {
                         font.pixelSize: 11
                         font.weight: Font.DemiBold
                     }
+                    CamperV2Icon {
+                        visible: parent.remoteProtected
+                        x: parent.width - 27
+                        y: 10
+                        width: 15
+                        height: 15
+                        kind: "lock"
+                        lineColor: style.blue
+                        strokeWidth: 1.6
+                    }
                     MouseArea {
                         anchors.fill: parent
-                        enabled: root.adapter.customCommandsAllowed === true && parent.isAvailable
+                        enabled: root.adapter.customCommandsAllowed === true && parent.isAvailable && !parent.remoteProtected
                         onClicked: root.adapter.activateQuick(parent.modelData)
                     }
                 }

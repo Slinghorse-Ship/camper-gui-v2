@@ -147,6 +147,7 @@ Item {
                 required property var modelData
                 readonly property bool isActive: modelData.active === true
                 readonly property bool isAvailable: modelData.available !== false
+                readonly property bool remoteProtected: root.adapter.remoteSession === true && isActive && String(modelData.id || "").toLowerCase().indexOf("starlink") >= 0
 
                 objectName: "camperV2QuickTile-" + String(modelData.id || "unknown")
                 width: (root.width - 10) / 2
@@ -197,15 +198,26 @@ Item {
                     x: 15
                     y: 91
                     width: parent.width - 30
-                    text: root.adapter.customCommandsAllowed === true ? "Antippen zum Schalten" : "Nur Anzeige"
+                    text: parent.remoteProtected ? "Remote geschützt" : (root.adapter.customCommandsAllowed === true ? "Antippen zum Schalten" : "Nur Anzeige")
                     color: style.muted
                     font.pixelSize: 8
+                }
+
+                CamperV2Icon {
+                    visible: parent.remoteProtected
+                    x: parent.width - 29
+                    y: 14
+                    width: 16
+                    height: 16
+                    kind: "lock"
+                    lineColor: style.green
+                    strokeWidth: 1.6
                 }
 
                 MouseArea {
                     id: quickArea
                     anchors.fill: parent
-                    enabled: root.adapter.customCommandsAllowed === true && parent.isAvailable
+                    enabled: root.adapter.customCommandsAllowed === true && parent.isAvailable && !parent.remoteProtected
                     onClicked: root.adapter.activateQuick(quickTile.modelData)
                 }
             }

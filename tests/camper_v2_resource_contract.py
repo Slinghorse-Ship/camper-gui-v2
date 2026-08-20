@@ -28,11 +28,21 @@ class CamperV2ResourceContractTest(unittest.TestCase):
         sources = [MQTT, *V2_PAGES.glob("*.qml"), *V2_COMPONENTS.glob("*.qml")]
         combined = "\n".join(path.read_text(encoding="utf-8") for path in sources)
         intervals = sorted(int(value) for value in re.findall(r"\binterval:\s*(\d+)", combined))
-        self.assertEqual(intervals, [20, 500, 30000])
+        self.assertEqual(intervals, [20, 500, 1800, 30000])
         overlay = (V2_COMPONENTS / "CamperV2VehicleLightOverlay.qml").read_text(encoding="utf-8")
         self.assertIn("running: overlay.frontOn && overlay.frontAmber", overlay)
         mqtt = MQTT.read_text(encoding="utf-8")
         self.assertIn("repeat: false", mqtt)
+
+        range_source = (V2_COMPONENTS / "CamperV2Range.qml").read_text(encoding="utf-8")
+        climate = (V2_PAGES / "CamperV2Climate.qml").read_text(encoding="utf-8")
+        lights = (V2_PAGES / "CamperV2Lights.qml").read_text(encoding="utf-8")
+        self.assertIn("signal committed(real value)", range_source)
+        self.assertIn("root.committed(root.pendingValue)", range_source)
+        self.assertIn("onCommitted: value => root.adapter.command", climate)
+        self.assertIn("onCommitted: value => root.dimLight", lights)
+        self.assertNotIn("onMoved: value => root.adapter.command", climate)
+        self.assertNotIn("onMoved: value => root.dimLight", lights)
 
     def test_external_payloads_and_visible_models_are_hard_capped(self):
         mqtt = MQTT.read_text(encoding="utf-8")

@@ -363,21 +363,23 @@ Item {
             y: 43
             width: parent.width
             horizontalAlignment: Text.AlignHCenter
-            text: root.fmt(root.fan.speed, 0, " %")
+            text: root.fmt(fanRange.shownValue, 0, " %")
             color: root.fan.on === true ? style.blue : style.text
             font.pixelSize: 35
             font.bold: true
         }
         CamperV2Range {
+            id: fanRange
             x: 14
             y: 99
             width: 243
             height: 38
             dayMode: root.dayMode
             value: root.valid(root.fan.speed) ? Number(root.fan.speed) : 0
+            stepSize: 10
             available: root.adapter.customCommandsAllowed === true && root.fan.online === true
             accent: style.blue
-            onMoved: value => root.adapter.command("maxxfan", "speed", Math.round(value / 10) * 10, ({}))
+            onCommitted: value => root.adapter.command("maxxfan", "speed", value, ({}))
         }
 
         Row {

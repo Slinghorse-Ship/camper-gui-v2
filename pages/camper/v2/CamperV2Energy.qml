@@ -183,7 +183,8 @@ Item {
                     required property int index
                     readonly property var channelData: root.findChannel(modelData.id, modelData.channel)
                     readonly property bool isActive: channelData.on === true
-                    readonly property bool isAvailable: root.channelAvailable(channelData)
+                    readonly property bool remoteProtected: root.adapter.remoteSession === true && isActive && Number(channelData.channel) === 5
+                    readonly property bool isAvailable: root.channelAvailable(channelData) && !remoteProtected
 
                     x: index < 3 ? 9 + index * 163 : 90 + (index - 3) * 163
                     y: index < 3 ? 9 : 142
@@ -193,7 +194,7 @@ Item {
                     color: isActive ? style.selectedGreen : style.inner
                     border.color: isActive ? style.green : style.border
                     border.width: isActive ? 2 : 1
-                    opacity: isAvailable ? 1 : .52
+                    opacity: isAvailable || remoteProtected ? 1 : .52
                     Rectangle {
                         x: 12
                         y: 42
@@ -223,6 +224,16 @@ Item {
                         color: parent.isActive ? style.green : style.text
                         font.pixelSize: 11
                         font.weight: Font.DemiBold
+                    }
+                    CamperV2Icon {
+                        visible: parent.remoteProtected
+                        x: parent.width - 27
+                        y: 10
+                        width: 15
+                        height: 15
+                        kind: "lock"
+                        lineColor: style.green
+                        strokeWidth: 1.6
                     }
                     MouseArea {
                         anchors.fill: parent

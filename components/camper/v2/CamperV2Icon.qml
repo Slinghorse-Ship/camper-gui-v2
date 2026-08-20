@@ -261,6 +261,12 @@ Canvas {
         } else if (kind === "close") {
             line(ctx, [[w * .22, h * .22], [w * .78, h * .78]]);
             line(ctx, [[w * .78, h * .22], [w * .22, h * .78]]);
+        } else if (kind === "lock") {
+            roundedRect(ctx, w * .20, h * .43, w * .60, h * .43, w * .08);
+            ctx.beginPath();
+            ctx.arc(x, h * .43, w * .22, Math.PI, 0);
+            ctx.stroke();
+            line(ctx, [[x, h * .60], [x, h * .72]]);
         } else if (kind === "back") {
             line(ctx, [[w * .70, h * .20], [w * .35, y], [w * .70, h * .80]]);
             line(ctx, [[w * .35, y], [w * .90, y]]);
