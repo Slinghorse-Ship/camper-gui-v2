@@ -57,7 +57,21 @@ Canvas {
         const x = w / 2;
         const y = h / 2;
 
-        if (kind === "home") {
+        if (kind === "favorite") {
+            ctx.beginPath();
+            for (let index = 0; index < 10; ++index) {
+                const angle = -Math.PI / 2 + index * Math.PI / 5;
+                const radius = index % 2 === 0 ? w * .37 : w * .17;
+                const px = x + Math.cos(angle) * radius;
+                const py = y + Math.sin(angle) * radius;
+                if (index === 0)
+                    ctx.moveTo(px, py);
+                else
+                    ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.stroke();
+        } else if (kind === "home") {
             line(ctx, [[w * .12, h * .48], [x, h * .16], [w * .88, h * .48]]);
             line(ctx, [[w * .22, h * .43], [w * .22, h * .84], [w * .42, h * .84], [w * .42, h * .62], [w * .61, h * .62], [w * .61, h * .84], [w * .78, h * .84], [w * .78, h * .43]]);
         } else if (kind === "lightNav") {

@@ -67,6 +67,7 @@ class CamperV2PanelsContractTest(unittest.TestCase):
         self.assertIn("camperV2RightEdgeSwipe", source)
         self.assertIn("camperV2SharedPanel", source)
         self.assertIn("camperV2PanelClose", source)
+        self.assertIn('kind: root.activePanel === root.quickPanel ? "favorite" : "climate"', source)
         self.assertIn("edgeWidth: 18", source)
         self.assertIn("swipeThreshold: 48", source)
         self.assertIn("horizontal >= vertical * 1.5", source)

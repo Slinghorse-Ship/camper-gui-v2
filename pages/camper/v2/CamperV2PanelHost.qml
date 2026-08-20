@@ -145,7 +145,7 @@ Item {
             y: 14
             width: 27
             height: 27
-            kind: root.activePanel === root.quickPanel ? "home" : "climate"
+            kind: root.activePanel === root.quickPanel ? "favorite" : "climate"
             lineColor: root.activePanel === root.quickPanel ? style.green : style.blue
             strokeWidth: 1.8
         }
