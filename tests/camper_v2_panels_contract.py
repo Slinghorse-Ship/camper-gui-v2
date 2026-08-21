@@ -172,7 +172,6 @@ class CamperV2PanelsContractTest(unittest.TestCase):
             self.assertNotIn(component, shell + preview)
         self.assertIn("CamperV2Shell", shell)
         self.assertNotIn("CamperDesignSettings", shell + settings + preview)
-        self.assertNotIn("ListRadioButtonGroup", settings)
         self.assertIn('PATTERN "camper" EXCLUDE', module_install)
         self.assertIn("FILES components/camper/CamperViewport.qml", module_install)
         self.assertIn("DIRECTORY components/camper/v2", module_install)
@@ -180,6 +179,31 @@ class CamperV2PanelsContractTest(unittest.TestCase):
         self.assertIn("DIRECTORY pages/camper/v2", module_install)
         self.assertNotIn("CamperLineIcon {", main_view)
         self.assertIn("CamperV2Icon {", main_view)
+
+    def test_weather_and_tide_locations_are_independent_cerbo_owned_settings(self):
+        source = SETTINGS.read_text(encoding="utf-8")
+        self.assertIn('serviceUidFromName("com.victronenergy.campercontrol", 0)', source)
+        self.assertEqual(source.count('"/Settings/WeatherLocation"'), 1)
+        self.assertEqual(source.count("VeQuickItem {"), 1)
+        self.assertEqual(source.count("ListRadioButtonGroup {"), 2)
+        for token in (
+            'text: "Wetterstandort"',
+            'text: "Tidestation"',
+            'root.selectLocation("weather", optionModel, index)',
+            'root.selectLocation("tide", optionModel, index)',
+            'rawValue.length > 1024',
+            'mode: "gps", stationId: ""',
+            'value: "10113"',
+            'value: "wilhelmshaven_alter_vorhafen"',
+            'BackendConnection.vrmPortalMode === BackendConnection.Full',
+        ):
+            self.assertIn(token, source)
+        for forbidden in ("xmlhttprequest", "latitude", "longitude"):
+            self.assertNotIn(forbidden, source.lower())
+        self.assertNotRegex(
+            source.lower(),
+            r'value:\s*"[^"]*(?:binnenpegel|binnenschifffahrt|wehr_unterpegel)',
+        )
 
     def test_new_runtime_files_are_in_the_shared_gx_wasm_qml_module(self):
         source = MODULE.read_text(encoding="utf-8")
