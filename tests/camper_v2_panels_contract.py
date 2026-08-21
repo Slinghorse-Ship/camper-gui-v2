@@ -137,6 +137,18 @@ class CamperV2PanelsContractTest(unittest.TestCase):
         self.assertIn("width: 44", source)
         self.assertIn("height: 44", source)
 
+    def test_quick_access_selector_skips_occupied_ids_without_moving_slots(self):
+        source = QUICK.read_text(encoding="utf-8")
+        for token in (
+            "function cycleUniqueSelection(values, index, direction)",
+            "for (let offset = 1; offset <= choices.length; ++offset)",
+            "if (slotIndex !== index && updated[slotIndex] === wanted)",
+            "const updated = cycleUniqueSelection(quickAccessIds, index, direction)",
+        ):
+            self.assertIn(token, source)
+        self.assertNotIn("updated[occupant]", source)
+        self.assertNotIn("const occupant", source)
+
     def test_v1_is_not_instantiated_or_packaged(self):
         module = MODULE.read_text(encoding="utf-8")
         module_install = MODULE_INSTALL.read_text(encoding="utf-8")

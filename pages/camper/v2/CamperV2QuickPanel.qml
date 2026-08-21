@@ -64,21 +64,39 @@ Item {
         };
     }
 
-    function changeQuickAccess(index, direction) {
-        if (adapter.customCommandsAllowed !== true || quickOptions.length === 0 || index >= quickAccessIds.length)
-            return;
+    function cycleUniqueSelection(values, index, direction) {
         const choices = [];
         for (let optionIndex = 0; optionIndex < quickOptions.length; ++optionIndex)
             choices.push(quickOptions[optionIndex].id);
-        let current = choices.indexOf(quickAccessIds[index]);
+        const updated = values.slice(0, 4);
+        while (updated.length < 4)
+            updated.push("");
+        const step = direction < 0 ? -1 : 1;
+        let current = choices.indexOf(updated[index]);
         if (current < 0)
-            current = 0;
-        const wanted = choices[(current + direction + choices.length) % choices.length];
-        const occupant = quickAccessIds.indexOf(wanted);
-        const updated = quickAccessIds.slice(0);
-        if (occupant >= 0 && occupant !== index)
-            updated[occupant] = updated[index];
-        updated[index] = wanted;
+            current = step > 0 ? -1 : 0;
+        for (let offset = 1; offset <= choices.length; ++offset) {
+            const choiceIndex = (current + step * offset + choices.length) % choices.length;
+            const wanted = choices[choiceIndex];
+            let occupied = false;
+            for (let slotIndex = 0; slotIndex < updated.length; ++slotIndex) {
+                if (slotIndex !== index && updated[slotIndex] === wanted) {
+                    occupied = true;
+                    break;
+                }
+            }
+            if (!occupied) {
+                updated[index] = wanted;
+                return updated;
+            }
+        }
+        return updated;
+    }
+
+    function changeQuickAccess(index, direction) {
+        if (adapter.customCommandsAllowed !== true || quickOptions.length === 0 || index < 0 || index >= 4)
+            return;
+        const updated = cycleUniqueSelection(quickAccessIds, index, direction);
         quickAccessIds = updated;
         adapter.setQuickAccessIds(updated);
     }
