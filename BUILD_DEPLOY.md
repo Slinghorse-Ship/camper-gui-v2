@@ -1,7 +1,7 @@
 # Build und Deployment – CamperControl gui-v2 (GX und WASM)
 
-Diese Anleitung gilt für den V2-only-Quellstand
-`251b7b47124bb474f61a8cdd5217bf0634a87d47`. Aus denselben QML-Quellen
+Diese Anleitung gilt für den V2-only-Buildstand
+`9e5a5282162b590b1e446958d97bf268915b3c23`. Aus denselben QML-Quellen
 entstehen zwei getrennte Ziele:
 
 - die native ARM-GX-Oberfläche unter `/opt/victronenergy/gui-v2`;
@@ -20,7 +20,7 @@ oder Hashes eines anderen Commits sind keine Releasewerte.
 
 | Merkmal | Releasewert |
 |---|---|
-| gui-v2-Quellcommit | `251b7b47124bb474f61a8cdd5217bf0634a87d47` |
+| gui-v2-Buildcommit | `9e5a5282162b590b1e446958d97bf268915b3c23` |
 | `src/veutil` | `62a05877cf6186396d1f77fc5265e518fc60381b` |
 | `src/qzxing` | `e3c5d9c49be9f640b1c094b170ecbb417a70ac25` |
 | Venus OS | `v3.80~39` |
@@ -46,12 +46,14 @@ Artefakthashes identifiziert.
 |---|---:|
 | Stage | `build-gx_files_to_copy/` |
 | Dateien | `924` |
-| Stage-Nutzbytes | `13580284` Byte |
+| Stage-Nutzbytes | `13572678` Byte |
 | Binary | `build-gx_files_to_copy/venus-gui-v2` |
 | Binary-Größe | `10162764` Byte |
-| Binary-SHA-256 | `07C0AB68CAB304E13F082DB094ADA2D5A871A386AF81C8FB5A680B612E077DA4` |
+| Binary-SHA-256 | `0CAC164966355C6335AF3416A0615D5D6180261F5139B6EB774DA75F02F27D19` |
+| Übergabearchiv-Größe | `7154486` Byte |
+| Übergabearchiv-SHA-256 | `98D24996956224206F1243289765EA45AFF4A1FEFBFBA3330EFFF78C70A16FCE` |
 
-Diese Werte gelten ausschließlich für Commit `251b7b47...` und die oben
+Diese Werte gelten ausschließlich für Buildcommit `9e5a5282...` und die oben
 gepinnten Submodule beziehungsweise Toolchain.
 
 ## Festgeschriebener WASM-Build
@@ -60,13 +62,15 @@ gepinnten Submodule beziehungsweise Toolchain.
 |---|---:|
 | Stage | `build-wasm_files_to_copy/wasm/` |
 | Dateien | `21` |
-| Stage-Nutzbytes | `17381692` Byte |
+| Stage-Nutzbytes | `17307429` Byte |
 | JavaScript-Größe | `303827` Byte |
-| JavaScript-SHA-256 | `54EBCDF1FC9995310CEAB9B9F1D424E0E2A73FB6220E567270F5CF45EE7873D6` |
-| komprimierte WASM-Größe | `16903797` Byte |
-| komprimierte WASM-SHA-256 | `657CA9CA082B309C0204EE3AB91205122A64819EE36FFBB90093F2981E220778` |
-| unkomprimierte WASM-Größe | `37228116` Byte |
-| unkomprimierte WASM-SHA-256 | `40EDB03604CAE18CB4602F633990F6ED9B57CA8E187310CC7E3D46ABACEAA06D` |
+| JavaScript-SHA-256 | `AA92A27CF66DFD691292ED23F9A890C41FE1B574D8C0F10ECFF3E3A91CFB41E7` |
+| komprimierte WASM-Größe | `16830458` Byte |
+| komprimierte WASM-SHA-256 | `5E584AAE4F0ADEBD4ACB0A175A3E4F96AD9BAFE7E7472B2EDF5258DC0702B584` |
+| unkomprimierte WASM-Größe | `36950599` Byte |
+| unkomprimierte WASM-SHA-256 | `44FBA9536032FCF6190732A8EF6671792BEAFD8DAB9E587609311B43A9CCC457` |
+| Übergabearchiv-Größe | `16983095` Byte |
+| Übergabearchiv-SHA-256 | `746ED876D3156C05A3760FC4731DBCAB4480614EC59194ECBB4A96E124DF3E96` |
 
 ## Voraussetzungen
 
@@ -96,8 +100,8 @@ Für einen Releasebuild einen eigenen abgetrennten Worktree verwenden. Im
 ursprünglichen Repository:
 
 ```sh
-GUI_COMMIT=251b7b47124bb474f61a8cdd5217bf0634a87d47
-RELEASE_SRC=../camper-gui-v2-251b7b47-release
+GUI_COMMIT=9e5a5282162b590b1e446958d97bf268915b3c23
+RELEASE_SRC=../camper-gui-v2-9e5a5282-release
 git worktree add --detach "$RELEASE_SRC" "$GUI_COMMIT"
 cd "$RELEASE_SRC"
 git submodule sync --recursive
@@ -192,11 +196,11 @@ nicht; Stage, Dateien, Größen und Hash müssen ausdrücklich geprüft werden:
 ```sh
 GX_STAGE=build-gx_files_to_copy
 GX_BINARY="$GX_STAGE/venus-gui-v2"
-GX_HASH=07c0ab68cab304e13f082db094ada2d5a871a386af81c8fb5a680b612e077da4
+GX_HASH=0cac164966355c6335af3416a0615d5d6180261f5139b6eb774da75f02f27d19
 
 test -x "$GX_BINARY"
 test "$(find "$GX_STAGE" -type f | wc -l)" -eq 924
-test "$(find "$GX_STAGE" -type f -printf '%s\n' | awk '{sum += $1} END {print sum + 0}')" -eq 13580284
+test "$(find "$GX_STAGE" -type f -printf '%s\n' | awk '{sum += $1} END {print sum + 0}')" -eq 13572678
 test "$(stat -c '%s' "$GX_BINARY")" -eq 10162764
 printf '%s  %s\n' "$GX_HASH" "$GX_BINARY" | sha256sum -c -
 
@@ -218,13 +222,13 @@ gepackt:
 ```sh
 set -o pipefail
 mkdir -p dist
-SOURCE_DATE_EPOCH=$(git show -s --format=%ct 251b7b47124bb474f61a8cdd5217bf0634a87d47)
+SOURCE_DATE_EPOCH=$(git show -s --format=%ct 9e5a5282162b590b1e446958d97bf268915b3c23)
 tar --sort=name --format=gnu --mtime="@${SOURCE_DATE_EPOCH}" \
   --owner=0 --group=0 --numeric-owner \
   -C build-gx_files_to_copy -cf - . \
-  | gzip -n -9 > dist/camper-gui-v2-gx-251b7b47.tar.gz
-gzip -t dist/camper-gui-v2-gx-251b7b47.tar.gz
-sha256sum dist/camper-gui-v2-gx-251b7b47.tar.gz
+  | gzip -n -9 > dist/camper-gui-v2-gx-9e5a5282.tar.gz
+gzip -t dist/camper-gui-v2-gx-9e5a5282.tar.gz
+sha256sum dist/camper-gui-v2-gx-9e5a5282.tar.gz
 ```
 
 Der ausgegebene Archivhash wird zusätzlich zum Binaryhash im Release-Manifest
@@ -282,17 +286,17 @@ test "$actual_inner" = "$expected_inner"
 test "$actual_size" = "$expected_size"
 
 test "$(find "$WASM_STAGE" -type f | wc -l)" -eq 21
-test "$(find "$WASM_STAGE" -type f -printf '%s\n' | awk '{sum += $1} END {print sum + 0}')" -eq 17381692
+test "$(find "$WASM_STAGE" -type f -printf '%s\n' | awk '{sum += $1} END {print sum + 0}')" -eq 17307429
 test "$(stat -c '%s' "$WASM_STAGE/venus-gui-v2.js")" -eq 303827
-test "$(stat -c '%s' "$WASM_STAGE/venus-gui-v2.wasm.gz")" -eq 16903797
-test "$actual_size" -eq 37228116
+test "$(stat -c '%s' "$WASM_STAGE/venus-gui-v2.wasm.gz")" -eq 16830458
+test "$actual_size" -eq 36950599
 printf '%s  %s\n' \
-  '54ebcdf1fc9995310ceab9b9f1d424e0e2a73fb6220e567270f5cf45ee7873d6' \
+  'aa92a27cf66dfd691292ed23f9a890c41fe1b574d8c0f10ecff3e3a91cfb41e7' \
   "$WASM_STAGE/venus-gui-v2.js" | sha256sum -c -
 printf '%s  %s\n' \
-  '657ca9ca082b309c0204ee3ab91205122a64819ee36ffbb90093f2981e220778' \
+  '5e584aae4f0adebd4acb0a175a3e4f96ad9bafe7e7472b2edf5258dc0702b584' \
   "$WASM_STAGE/venus-gui-v2.wasm.gz" | sha256sum -c -
-test "$actual_inner" = '40edb03604cae18cb4602f633990f6ed9b57ca8e187310cc7e3d46abaceaa06d'
+test "$actual_inner" = '44fba9536032fcf6190732a8ef6671792beafd8dab9e587609311b43a9ccc457'
 
 find "$WASM_STAGE" -type f | sort
 sha256sum "$WASM_STAGE/venus-gui-v2.js"
@@ -317,13 +321,13 @@ Archivmetadaten gepackt:
 ```sh
 set -o pipefail
 mkdir -p dist
-SOURCE_DATE_EPOCH=$(git show -s --format=%ct 251b7b47124bb474f61a8cdd5217bf0634a87d47)
+SOURCE_DATE_EPOCH=$(git show -s --format=%ct 9e5a5282162b590b1e446958d97bf268915b3c23)
 tar --sort=name --format=gnu --mtime="@${SOURCE_DATE_EPOCH}" \
   --owner=0 --group=0 --numeric-owner \
   -C build-wasm_files_to_copy/wasm -cf - . \
-  | gzip -n -9 > dist/camper-gui-v2-wasm-251b7b47.tar.gz
-gzip -t dist/camper-gui-v2-wasm-251b7b47.tar.gz
-sha256sum dist/camper-gui-v2-wasm-251b7b47.tar.gz
+  | gzip -n -9 > dist/camper-gui-v2-wasm-9e5a5282.tar.gz
+gzip -t dist/camper-gui-v2-wasm-9e5a5282.tar.gz
+sha256sum dist/camper-gui-v2-wasm-9e5a5282.tar.gz
 ```
 
 Archivhash, Datei-/Bytezahl, JavaScript-Hash, WASM-Innenhash und der Hash der
