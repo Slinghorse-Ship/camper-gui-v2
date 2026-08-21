@@ -100,7 +100,7 @@ Use the Qt 6.8.3 preview harness before packaging:
 
 ```powershell
 $env:PYTHONPATH = (Resolve-Path '.deps\pyside6').Path
-$python = 'C:\Users\wehla\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+$python = (Get-Command python).Source
 & $python tools\camper-preview\smoke_test.py
 ```
 

@@ -157,7 +157,7 @@ und der echte 800×480-Touch-Smoke-Test geprüft werden:
 
 ```powershell
 $env:PYTHONPATH = (Resolve-Path '.deps\pyside6').Path
-$python = 'C:\Users\wehla\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+$python = (Get-Command python).Source
 & $python -m unittest discover -s tests -p 'camper_*_contract.py'
 & $python tools\camper-preview\smoke_test.py
 ```
