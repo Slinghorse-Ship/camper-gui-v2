@@ -13,6 +13,7 @@ GX/WASM, Ford SYNC und Node-RED verwenden dieselben Daten- und Bedienverträge.
 > formaler Fork geführt. Es ist kein offizielles Produkt von Victron Energy.
 
 [Funktionen](#funktionen) · [Galerie](#interaktive-galerie) ·
+[Victron-Rückkehr](#victron-bleibt-im-hintergrund-aktiv) ·
 [Wetter & Tide](#wetter-und-tide) · [Architektur](#architektur-und-sicherheit) ·
 [Bauen & testen](#bauen-und-testen) · [Lizenz](#lizenz)
 
@@ -32,6 +33,17 @@ Die Oberfläche ist auf das logische 800×480-Raster des GX Touch 50 ausgelegt
 und skaliert in der WASM Remote Console ohne schwarze Restflächen. Tag- und
 Nachtmodus sowie Bediengeometrie werden gemeinsam gepflegt. GX/WASM ist die
 Designreferenz für Ford SYNC und Node-RED.
+
+## Victron bleibt im Hintergrund aktiv
+
+CamperControl ersetzt die originale Victron-Bedienung nicht. Die Victron-Seiten
+und -Einstellungen bleiben im selben `gui-v2`-Prozess geladen; CamperControl ist
+eine zusätzliche Oberfläche darüber. Der sichtbare Schließen-/Zurück-Schalter
+oben rechts sowie „Victron öffnen“ auf der Systemseite führen jederzeit wieder
+zur normalen Victron-Ansicht. Dadurch bleiben auch alle nicht von CamperControl
+abgedeckten Victron-Funktionen erreichbar.
+
+![Systemseite mit Victron-Rückkehr und Schließen-Schalter oben rechts](docs/camper/screens/v2-system-night.png)
 
 ## Interaktive Galerie
 
