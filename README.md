@@ -30,6 +30,12 @@ und skaliert in der WASM Remote Console ohne schwarze Restflächen. Tag- und
 Nachtmodus sowie Bediengeometrie werden gemeinsam gepflegt. GX/WASM ist die
 Designreferenz für Ford SYNC und Node-RED.
 
+Unter **Einstellungen → CamperControl → AUTOTERM-Kälteschutz** stehen der
+zentrale Ein/Aus-Schalter, Start- und Stopptemperatur sowie die Heizstufe zur
+Verfügung. Als feste Frostschutzreferenz wird der Ruuvi B7B8 am Boden verwendet;
+Standard ist Aus bei 3/5 °C und Stufe 4. GX und Remote Console schreiben dafür
+denselben validierten Cerbo-Settings-Patch wie Node-RED und Ford SYNC.
+
 ## Victron bleibt im Hintergrund aktiv
 
 CamperControl ersetzt die originale Victron-Bedienung nicht. Die Victron-Seiten

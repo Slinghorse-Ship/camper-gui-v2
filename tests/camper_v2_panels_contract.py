@@ -184,7 +184,7 @@ class CamperV2PanelsContractTest(unittest.TestCase):
         source = SETTINGS.read_text(encoding="utf-8")
         self.assertIn('serviceUidFromName("com.victronenergy.campercontrol", 0)', source)
         self.assertEqual(source.count('"/Settings/WeatherLocation"'), 1)
-        self.assertEqual(source.count("VeQuickItem {"), 1)
+        self.assertEqual(source.count("VeQuickItem {"), 3)
         self.assertEqual(source.count("ListRadioButtonGroup {"), 2)
         for token in (
             'text: "Wetterstandort"',
@@ -210,6 +210,32 @@ class CamperV2PanelsContractTest(unittest.TestCase):
             source.lower(),
             r'value:\s*"[^"]*(?:binnenpegel|binnenschifffahrt|wehr_unterpegel)',
         )
+
+    def test_autoterm_cold_protection_switch_is_under_settings(self):
+        source = SETTINGS.read_text(encoding="utf-8")
+        for token in (
+            'text: "AUTOTERM-Kälteschutz"',
+            'text: "Kälteschutz"',
+            'root.camperServiceUid + "/State/Climate"',
+            'root.camperServiceUid + "/Command"',
+            'target: "settings"',
+            'action: "patch"',
+            'coldProtection: {',
+            'startTemperature: 3',
+            'stopTemperature: 5',
+            'power: 4',
+            'sensor: "floor"',
+            'Ruuvi B7B8 · Boden',
+            'BackendConnection.vrm ? "vrm" : "gx"',
+            'ListSwitch {',
+            'text: "Start unter"',
+            'text: "Stopp ab"',
+            'text: "Heizstufe"',
+        ):
+            self.assertIn(token, source)
+        self.assertEqual(source.count('root.camperServiceUid + "/State/Climate"'), 1)
+        self.assertEqual(source.count('root.camperServiceUid + "/Command"'), 1)
+        self.assertGreaterEqual(source.count("ListSpinBox {"), 3)
 
     def test_preview_uses_the_north_sea_fallback_for_inland_weather(self):
         source = PREVIEW.read_text(encoding="utf-8")

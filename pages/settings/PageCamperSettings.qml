@@ -13,6 +13,8 @@ Page {
             || BackendConnection.vrmPortalMode === BackendConnection.Full
     property var locationConfig: defaultLocationConfig()
     property string locationError: ""
+    property var coldProtection: defaultColdProtection()
+    property string coldProtectionError: ""
 
     readonly property var weatherStations: [
         { display: "GPS / automatisch", value: "" },
@@ -70,6 +72,84 @@ Page {
             weather: { mode: "gps", stationId: "" },
             tide: { mode: "gps", stationId: "" }
         };
+    }
+
+    function defaultColdProtection() {
+        return {
+            enabled: false,
+            startTemperature: 3,
+            stopTemperature: 5,
+            power: 4,
+            sensor: "floor",
+            sensorName: "Ruuvi B7B8 · Boden",
+            sensorTemperature: null,
+            active: false
+        };
+    }
+
+    function boundedNumber(value, fallback, minimum, maximum) {
+        const parsed = Number(value);
+        return isNaN(parsed) ? fallback : Math.max(minimum, Math.min(maximum, parsed));
+    }
+
+    function normalizeColdProtection(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value))
+            return null;
+        const startTemperature = boundedNumber(value.startTemperature, 3, 0, 8);
+        const stopTemperature = Math.max(startTemperature + 1,
+                boundedNumber(value.stopTemperature, 5, 1, 12));
+        return {
+            enabled: value.enabled === true,
+            startTemperature: startTemperature,
+            stopTemperature: stopTemperature,
+            power: Math.round(boundedNumber(value.power, 4, 1, 10)),
+            sensor: "floor",
+            sensorName: value.sensorName || "Ruuvi B7B8 · Boden",
+            sensorTemperature: value.sensorTemperature === null || value.sensorTemperature === undefined
+                    ? null : Number(value.sensorTemperature),
+            active: value.active === true
+        };
+    }
+
+    function refreshColdProtection() {
+        if (!climateStateItem.valid) {
+            coldProtection = defaultColdProtection();
+            coldProtectionError = "CamperControl-Dienst nicht verbunden";
+            return;
+        }
+        try {
+            const climate = JSON.parse(String(climateStateItem.value || "{}"));
+            const normalized = normalizeColdProtection(climate.coldProtection);
+            coldProtection = normalized || defaultColdProtection();
+            coldProtectionError = normalized ? "" : "Kälteschutzstatus nicht verfügbar";
+        } catch (error) {
+            coldProtection = defaultColdProtection();
+            coldProtectionError = "Ungültiger Kälteschutzstatus";
+        }
+    }
+
+    function setColdProtection(patch) {
+        if (!commandItem.valid || !locationWriteAllowed)
+            return;
+        const next = normalizeColdProtection(Object.assign({}, coldProtection, patch));
+        if (!next)
+            return;
+        coldProtection = next;
+        coldProtectionError = "";
+        commandItem.setValue(JSON.stringify({
+            target: "settings",
+            action: "patch",
+            origin: BackendConnection.vrm ? "vrm" : "gx",
+            patch: {
+                coldProtection: {
+                    enabled: next.enabled,
+                    startTemperature: next.startTemperature,
+                    stopTemperature: next.stopTemperature,
+                    power: next.power,
+                    sensor: "floor"
+                }
+            }
+        }));
     }
 
     function normalizeLocationSection(section, weatherSection) {
@@ -162,7 +242,22 @@ Page {
         onValidChanged: root.refreshLocationConfig()
     }
 
-    Component.onCompleted: refreshLocationConfig()
+    VeQuickItem {
+        id: climateStateItem
+        uid: root.camperServiceUid ? root.camperServiceUid + "/State/Climate" : ""
+        onValueChanged: root.refreshColdProtection()
+        onValidChanged: root.refreshColdProtection()
+    }
+
+    VeQuickItem {
+        id: commandItem
+        uid: root.camperServiceUid ? root.camperServiceUid + "/Command" : ""
+    }
+
+    Component.onCompleted: {
+        refreshLocationConfig();
+        refreshColdProtection();
+    }
 
     GradientListView {
         model: VisibleItemModel {
@@ -227,6 +322,79 @@ Page {
                 preferredVisible: root.locationError !== ""
                 text: "Standortauswahl"
                 secondaryText: root.locationError
+            }
+
+            SectionHeader {
+                text: "AUTOTERM-Kälteschutz"
+            }
+
+            ListSwitch {
+                text: "Kälteschutz"
+                secondaryText: root.coldProtection.active ? "AKTIV · Heizung durch Frostschutz gestartet"
+                        : (root.coldProtection.enabled ? "Automatik bereit" : "Aus")
+                caption: "Hält den Bodenbereich automatisch frostfrei. Batterie- und AUTOTERM-Schutz bleiben wirksam."
+                writeAccessLevel: VenusOS.User_AccessType_User
+                interactive: commandItem.valid && root.locationWriteAllowed
+                checkable: true
+                updateDataOnClick: false
+                checked: root.coldProtection.enabled
+                onClicked: root.setColdProtection({ enabled: checked })
+            }
+
+            ListSpinBox {
+                text: "Start unter"
+                suffix: " °C"
+                from: 0
+                to: 8
+                stepSize: 1
+                value: root.coldProtection.startTemperature
+                writeAccessLevel: VenusOS.User_AccessType_User
+                interactive: commandItem.valid && root.locationWriteAllowed
+                onSelectorAccepted: function(newValue) {
+                    root.setColdProtection({ startTemperature: newValue });
+                }
+            }
+
+            ListSpinBox {
+                text: "Stopp ab"
+                suffix: " °C"
+                from: 1
+                to: 12
+                stepSize: 1
+                value: root.coldProtection.stopTemperature
+                writeAccessLevel: VenusOS.User_AccessType_User
+                interactive: commandItem.valid && root.locationWriteAllowed
+                onSelectorAccepted: function(newValue) {
+                    root.setColdProtection({ stopTemperature: newValue });
+                }
+            }
+
+            ListSpinBox {
+                text: "Heizstufe"
+                suffix: " / 10"
+                from: 1
+                to: 10
+                stepSize: 1
+                value: root.coldProtection.power
+                writeAccessLevel: VenusOS.User_AccessType_User
+                interactive: commandItem.valid && root.locationWriteAllowed
+                onSelectorAccepted: function(newValue) {
+                    root.setColdProtection({ power: newValue });
+                }
+            }
+
+            ListText {
+                text: "Fester Sensor"
+                secondaryText: root.coldProtection.sensorName
+                caption: root.coldProtection.sensorTemperature === null
+                        ? "B7B8 liefert derzeit keinen Temperaturwert."
+                        : "Aktuell " + root.coldProtection.sensorTemperature.toFixed(1) + " °C"
+            }
+
+            ListText {
+                preferredVisible: root.coldProtectionError !== ""
+                text: "Kälteschutz"
+                secondaryText: root.coldProtectionError
             }
 
             SectionHeader {
