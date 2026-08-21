@@ -196,6 +196,12 @@ class CamperV2PanelsContractTest(unittest.TestCase):
             'value: "10113"',
             'value: "wilhelmshaven_alter_vorhafen"',
             'BackendConnection.vrmPortalMode === BackendConnection.Full',
+            'text: "Datenquellen & Lizenzen"',
+            'Quelle: Deutscher Wetterdienst · CC BY 4.0',
+            '© Bundesamt für Seeschifffahrt und Hydrographie (BSH) · CC BY 4.0',
+            'PolyForm Noncommercial 1.0.0',
+            'https://www.dwd.de/DE/leistungen/opendata/faqs_opendata.html',
+            'https://gdi.bsh.de/ldproxy/rest/services/WaterLevelForecast',
         ):
             self.assertIn(token, source)
         for forbidden in ("xmlhttprequest", "latitude", "longitude"):
@@ -204,6 +210,20 @@ class CamperV2PanelsContractTest(unittest.TestCase):
             source.lower(),
             r'value:\s*"[^"]*(?:binnenpegel|binnenschifffahrt|wehr_unterpegel)',
         )
+
+    def test_preview_uses_the_north_sea_fallback_for_inland_weather(self):
+        source = PREVIEW.read_text(encoding="utf-8")
+        self.assertIn('name: "Berlin-Tempelhof"', source)
+        self.assertIn('id: "wilhelmshaven_alter_vorhafen"', source)
+        self.assertIn('name: "Wilhelmshaven Alter Vorhafen"', source)
+        for forbidden in ("Oldenburg", "Drielake", 'id: "748P"'):
+            self.assertNotIn(forbidden, source)
+
+    def test_system_page_names_weather_and_tide_together(self):
+        source = (ROOT / "pages" / "camper" / "v2" / "CamperV2System.qml").read_text(encoding="utf-8")
+        self.assertIn('label: "Wetter & BSH-Tide"', source)
+        self.assertIn('text: "Links  Favoriten\\nRechts  Wetter & Tide"', source)
+        self.assertNotIn('Rechts  DWD-Wetter', source)
 
     def test_new_runtime_files_are_in_the_shared_gx_wasm_qml_module(self):
         source = MODULE.read_text(encoding="utf-8")

@@ -503,9 +503,9 @@ Window {
                     source: "BSH",
                     attribution: "© Bundesamt für Seeschifffahrt und Hydrographie (BSH)",
                     station: {
-                        id: "748P",
-                        name: "Oldenburg, Drielake, Hunte",
-                        distanceKm: 3.2
+                        id: "wilhelmshaven_alter_vorhafen",
+                        name: "Wilhelmshaven Alter Vorhafen",
+                        distanceKm: 326.3
                     },
                     updatedUtc: new Date().toISOString(),
                     stale: false,

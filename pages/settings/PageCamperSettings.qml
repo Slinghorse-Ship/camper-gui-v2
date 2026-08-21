@@ -181,7 +181,7 @@ Page {
 
             ListText {
                 text: "Seitliche Panels"
-                secondaryText: "Links Favoriten · rechts Wetter"
+                secondaryText: "Links Favoriten · rechts Wetter & Tide"
                 caption: "Vom unsichtbaren Bildschirmrand zur Mitte wischen."
             }
 
@@ -227,6 +227,38 @@ Page {
                 preferredVisible: root.locationError !== ""
                 text: "Standortauswahl"
                 secondaryText: root.locationError
+            }
+
+            SectionHeader {
+                text: "Datenquellen & Lizenzen"
+            }
+
+            ListText {
+                text: "DWD-Wetterdaten"
+                secondaryText: "Quelle: Deutscher Wetterdienst · CC BY 4.0"
+                caption: "CamperControl wählt die Station, normalisiert MOSMIX und bildet Tageswerte."
+            }
+
+            ListLink {
+                text: "DWD Open Data – Lizenz und Quellenhinweis"
+                url: "https://www.dwd.de/DE/leistungen/opendata/faqs_opendata.html"
+            }
+
+            ListText {
+                text: "BSH-Tidedaten"
+                secondaryText: "© Bundesamt für Seeschifffahrt und Hydrographie (BSH) · CC BY 4.0"
+                caption: "CamperControl wählt nur Nordseestationen, normalisiert UTC/cm→m und reduziert die Kurve."
+            }
+
+            ListLink {
+                text: "BSH WaterLevelForecast – Lizenz und Quelle"
+                url: "https://gdi.bsh.de/ldproxy/rest/services/WaterLevelForecast"
+            }
+
+            ListText {
+                text: "CamperControl-Software"
+                secondaryText: "PolyForm Noncommercial 1.0.0"
+                caption: "Kommerzielle Nutzung der eigenständigen CamperControl-Anteile ist nicht erlaubt."
             }
         }
     }

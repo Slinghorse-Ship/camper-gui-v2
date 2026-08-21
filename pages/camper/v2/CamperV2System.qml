@@ -71,7 +71,7 @@ Item {
                     icon: "system"
                 },
                 {
-                    label: "DWD-Wetter",
+                    label: "Wetter & BSH-Tide",
                     connected: root.adapter.weatherConnected === true,
                     icon: "climate"
                 }
@@ -180,7 +180,7 @@ Item {
             x: 14
             y: 40
             width: 228
-            text: "Links  Favoriten\nRechts  DWD-Wetter"
+            text: "Links  Favoriten\nRechts  Wetter & Tide"
             color: style.muted
             font.pixelSize: 10
             lineHeight: 1.45
