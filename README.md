@@ -41,9 +41,10 @@ und -Einstellungen bleiben im selben `gui-v2`-Prozess geladen; CamperControl ist
 eine zusätzliche Oberfläche darüber. Der sichtbare Schließen-/Zurück-Schalter
 oben rechts sowie „Victron öffnen“ auf der Systemseite führen jederzeit wieder
 zur normalen Victron-Ansicht. Dadurch bleiben auch alle nicht von CamperControl
-abgedeckten Victron-Funktionen erreichbar.
+abgedeckten Victron-Funktionen erreichbar. In der originalen Victron-Ansicht
+führt der Schalter „CAMPER“ oben zurück zu CamperControl.
 
-![Systemseite mit Victron-Rückkehr und Schließen-Schalter oben rechts](docs/camper/screens/v2-system-night.png)
+![Originale Victron-Übersicht mit CAMPER-Schalter für die Rückkehr zu CamperControl](docs/camper/screens/victron-overview-with-camper-return.jpg)
 
 ## Interaktive Galerie
 
