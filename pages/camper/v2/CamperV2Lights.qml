@@ -123,7 +123,7 @@ Item {
         const sourceY = y * 360 / itemHeight;
         const sideDistance = rightView ? Math.min(pointDistance(sourceX, sourceY, 71, 44.5), pointDistance(sourceX, sourceY, 155.5, 43.5)) : Math.min(pointDistance(sourceX, sourceY, 376, 37.5), pointDistance(sourceX, sourceY, 462.5, 38.5));
         const rearDistance = pointDistance(sourceX, sourceY, rightView ? 50 : 439, 12);
-        const highBeamDistance = rightView ? lineDistance(sourceX, sourceY, 263, 60, 403, 65) : lineDistance(sourceX, sourceY, 168, 49, 317, 49);
+        const highBeamDistance = rightView ? lineDistance(sourceX, sourceY, 263, 36, 399, 41) : lineDistance(sourceX, sourceY, 168, 49, 317, 49);
         const nearest = Math.min(sideDistance, rearDistance, highBeamDistance);
 
         // Keep the hit areas forgiving without turning blank roof/body pixels

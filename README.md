@@ -8,10 +8,6 @@ nativ auf dem GX Touch und als WebAssembly-Oberfläche in der Victron Remote
 Console. Der Cerbo verwaltet Zustände, Einstellungen, Wetter und Tide zentral;
 GX/WASM, Ford SYNC und Node-RED verwenden dieselben Daten- und Bedienverträge.
 
-> **This code is based on Victron Energy code.** Dieses Repository ist derzeit
-> technisch aus Victrons Historie abgeleitet, wird von GitHub aber nicht als
-> formaler Fork geführt. Es ist kein offizielles Produkt von Victron Energy.
-
 [Funktionen](#funktionen) · [Galerie](#interaktive-galerie) ·
 [Victron-Rückkehr](#victron-bleibt-im-hintergrund-aktiv) ·
 [Wetter & Tide](#wetter-und-tide) · [Architektur](#architektur-und-sicherheit) ·
@@ -57,6 +53,8 @@ werden direkt aus dem lokalen Qt-6-Preview des jeweiligen QML-Stands in
 
 ![Home mit Energie, Klima und Schnellzugriff](docs/camper/screens/v2-home-night.png)
 
+![Home im Tagmodus](docs/camper/screens/v2-home-day.png)
+
 </details>
 
 <details>
@@ -66,12 +64,18 @@ werden direkt aus dem lokalen Qt-6-Preview des jeweiligen QML-Stands in
 
 ![Licht Beifahrerseite](docs/camper/screens/v2-lights-passenger-night.png)
 
+![Licht Fahrerseite im Tagmodus](docs/camper/screens/v2-lights-driver-day.png)
+
+![Licht Beifahrerseite im Tagmodus](docs/camper/screens/v2-lights-passenger-day.png)
+
 </details>
 
 <details>
 <summary><strong>Klima</strong></summary>
 
 ![Klima mit Komfortregelung, Autoterm und MaxxFan](docs/camper/screens/v2-climate-night.png)
+
+![Klima im Tagmodus](docs/camper/screens/v2-climate-day.png)
 
 </details>
 
@@ -82,12 +86,18 @@ werden direkt aus dem lokalen Qt-6-Preview des jeweiligen QML-Stands in
 
 ![Energiequellen](docs/camper/screens/v2-energy-sources-night.png)
 
+![Energie 12 V und 230 V im Tagmodus](docs/camper/screens/v2-energy-power-day.png)
+
+![Energiequellen im Tagmodus](docs/camper/screens/v2-energy-sources-day.png)
+
 </details>
 
 <details>
 <summary><strong>Wasser</strong></summary>
 
 ![Frischwasser und Wasserpumpe](docs/camper/screens/v2-water-night.png)
+
+![Frischwasser und Wasserpumpe im Tagmodus](docs/camper/screens/v2-water-day.png)
 
 </details>
 
@@ -96,6 +106,8 @@ werden direkt aus dem lokalen Qt-6-Preview des jeweiligen QML-Stands in
 
 ![System, Verbindungen und Victron-Rückkehr](docs/camper/screens/v2-system-night.png)
 
+![System im Tagmodus](docs/camper/screens/v2-system-day.png)
+
 </details>
 
 <details>
@@ -103,12 +115,16 @@ werden direkt aus dem lokalen Qt-6-Preview des jeweiligen QML-Stands in
 
 ![Cerbo-Favoriten](docs/camper/screens/v2-favorites-night.png)
 
+![Cerbo-Favoriten im Tagmodus](docs/camper/screens/v2-favorites-day.png)
+
 </details>
 
 <details>
 <summary><strong>Wetter- und Tidepanel</strong></summary>
 
 ![DWD-Wetter und BSH-Nordsee-Tide](docs/camper/screens/v2-weather-night.png)
+
+![DWD-Wetter und BSH-Nordsee-Tide im Tagmodus](docs/camper/screens/v2-weather-day.png)
 
 </details>
 
@@ -190,6 +206,8 @@ Die Lizenzierung ist bewusst getrennt:
   Kommerzielle Nutzung dieser CamperControl-Anteile ist nicht erlaubt.
 - Die genaue Zuordnung und Hinweise zu Drittmaterial stehen in
   [NOTICE.md](NOTICE.md).
+- Aus Lucide abgeleitete Navigationssymbole behalten ihre
+  [ISC-/MIT-Lizenz](LICENSE-LUCIDE.txt).
 - DWD- und BSH-Daten bleiben separat unter CC BY 4.0; Quellenangaben und
   Verarbeitungshinweise stehen in [DATA-LICENSES.md](DATA-LICENSES.md).
 

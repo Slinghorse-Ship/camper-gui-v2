@@ -115,9 +115,9 @@ Canvas {
             fixtureSquare(ctx, rightView ? 50 : 439, 12, 14, .92, .98, 1, .56 + rearLevel / 210);
 
         const frontX1 = sourceX(rightView ? 263 : 168);
-        const frontY1 = sourceY(rightView ? 60 : 49);
-        const frontX2 = sourceX(rightView ? 403 : 317);
-        const frontY2 = sourceY(rightView ? 65 : 49);
+        const frontY1 = sourceY(rightView ? 36 : 49);
+        const frontX2 = sourceX(rightView ? 399 : 317);
+        const frontY2 = sourceY(rightView ? 41 : 49);
         if (highBeamOn) {
             ctx.save();
             ctx.lineCap = "round";

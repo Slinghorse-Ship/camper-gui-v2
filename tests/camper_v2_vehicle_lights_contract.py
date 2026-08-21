@@ -31,9 +31,9 @@ class CamperV2VehicleLightsContractTest(unittest.TestCase):
             "454, 38.5, 471, 38.5",
             "rightView ? 50 : 439, 12",
             "rightView ? 263 : 168",
-            "rightView ? 60 : 49",
-            "rightView ? 403 : 317",
-            "rightView ? 65 : 49",
+            "rightView ? 36 : 49",
+            "rightView ? 399 : 317",
+            "rightView ? 41 : 49",
             "rightView ? 223 : 402",
         ):
             self.assertIn(coordinates, source)
@@ -49,7 +49,7 @@ class CamperV2VehicleLightsContractTest(unittest.TestCase):
             "376, 37.5",
             "462.5, 38.5",
             "rightView ? 50 : 439, 12",
-            "263, 60, 403, 65",
+            "263, 36, 399, 41",
             "168, 49, 317, 49",
         ):
             self.assertIn(coordinates, source)

@@ -28,4 +28,10 @@ Commercial use of those CamperControl portions is not permitted by that license.
 
 ## Third-party material
 
+The shared CamperControl icon library combines original device- and
+vehicle-control drawings with selected navigation icons adapted from Lucide.
+Lucide is licensed under ISC; the Lucide icons derived from Feather are
+additionally covered by MIT. The complete notices are in
+[`LICENSE-LUCIDE.txt`](LICENSE-LUCIDE.txt).
+
 Victron Energy, Ford, DWD, BSH and other names and marks belong to their respective owners. DWD and BSH data remains separately licensed under CC BY 4.0 and is not restricted by the CamperControl noncommercial license. The exact sources, attribution and processing notices are in [DATA-LICENSES.md](DATA-LICENSES.md). Third-party libraries retain their own license files. No trademark or third-party artwork license is granted here.
