@@ -526,9 +526,9 @@ Item {
 
         MouseArea {
             x: 0
-            y: 0
+            y: 34
             width: 196
-            height: parent.height
+            height: parent.height - y
             onClicked: root.pageRequested(2)
         }
     }

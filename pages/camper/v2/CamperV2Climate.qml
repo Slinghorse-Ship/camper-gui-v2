@@ -458,16 +458,12 @@ Item {
                     {
                         mode: "reverse",
                         label: "Zuluft"
-                    },
-                    {
-                        mode: "auto",
-                        label: "Auto"
                     }
                 ]
                 delegate: Rectangle {
                     required property var modelData
-                    readonly property bool selected: modelData.mode === "auto" ? root.fan.autoHold === true : (root.fan.autoHold !== true && root.fan.mode === modelData.mode)
-                    width: 82
+                    readonly property bool selected: root.fan.mode === modelData.mode
+                    width: 124
                     height: 39
                     radius: 10
                     color: selected ? style.selectedBlue : style.inner
@@ -482,12 +478,7 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         enabled: root.adapter.customCommandsAllowed === true && root.fan.online === true
-                        onClicked: {
-                            if (parent.modelData.mode === "auto")
-                                root.adapter.command("maxxfan", "auto", root.fan.autoHold !== true, ({}));
-                            else
-                                root.adapter.command("maxxfan", "mode", parent.modelData.mode, ({}));
-                        }
+                        onClicked: root.adapter.command("maxxfan", "mode", parent.modelData.mode, ({}))
                     }
                 }
             }
