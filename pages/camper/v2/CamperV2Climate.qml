@@ -437,8 +437,10 @@ Item {
             width: 243
             height: 38
             dayMode: root.dayMode
-            value: root.valid(root.fan.speed) ? Number(root.fan.speed) : 0
+            value: root.valid(root.fan.selectedSpeed) ? Math.max(0, Math.min(100, Math.round(Number(root.fan.selectedSpeed) / 10) * 10))
+                    : (root.valid(root.fan.speed) ? Math.max(0, Math.min(100, Math.round(Number(root.fan.speed) / 10) * 10)) : 0)
             stepSize: 10
+            holdUntilConfirmed: true
             available: root.adapter.customCommandsAllowed === true && root.fan.online === true
             accent: style.blue
             onCommitted: value => root.adapter.command("maxxfan", "speed", value, ({}))

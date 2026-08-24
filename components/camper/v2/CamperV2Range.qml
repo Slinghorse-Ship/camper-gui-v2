@@ -12,6 +12,7 @@ Item {
     property color accent: style.blue
     property bool dragging: false
     property bool awaitingCommit: false
+    property bool holdUntilConfirmed: false
     property real pendingValue: value
     readonly property real shownValue: dragging || awaitingCommit ? pendingValue : value
     signal moved(real value)
@@ -103,7 +104,8 @@ Item {
             root.dragging = false;
             root.awaitingCommit = true;
             root.committed(root.pendingValue);
-            settleTimer.restart();
+            if (!root.holdUntilConfirmed)
+                settleTimer.restart();
         }
         onCanceled: {
             root.dragging = false;
